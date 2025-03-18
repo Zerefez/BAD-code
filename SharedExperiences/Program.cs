@@ -1,55 +1,55 @@
-using Microsoft.AspNetCore.DataProtection;
+
+using ExperienceService.Data;
+using ExperienceService.Services;
+using ExperienceService.Swagger;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.Metadata.Internal;
-using SharedExperinces.WebApi.DataAccess;
-using SharedExperinces.WebApi.Services;
+using Microsoft.Extensions.Options;
+using System.Text.Json.Serialization;
+using Swashbuckle.AspNetCore.SwaggerGen;
 
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
+builder.Services.AddControllers()
+    .AddJsonOptions(options => 
+    {
+        options.JsonSerializerOptions.ReferenceHandler = ReferenceHandler.Preserve;
+    });
 
-builder.Services.AddControllers();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
+builder.Services.AddTransient<IConfigureOptions<SwaggerGenOptions>, ConfigureSwaggerOptions>();
 
+// Add DbContext
+builder.Services.AddDbContext<SharedExperiencesDbContext>(options =>
+    options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
 
-var connectionString = "Data Source=127.0.0.1,1433;Database=SharedExperincesDB;User Id=sa;Password=Password,1;TrustServerCertificate=True";
-  
-
-Console.WriteLine($"Connection string: {connectionString}");
-
-builder.Services.AddDbContext<SharedExperinceContext>(options =>
-	options.UseSqlServer(connectionString));
-
-
-builder.Services.AddTransient<ServiceService>();
-builder.Services.AddTransient<SharedExperienceService>();
-builder.Services.AddTransient<ProviderService>();
-
-
-
-
-
+// Add services
+builder.Services.AddScoped<DbSeeder>();
+builder.Services.AddScoped<ServiceService>();
 
 var app = builder.Build();
-
-
-using (var scope = app.Services.CreateScope())
-{
-	var dbContext = scope.ServiceProvider.GetRequiredService<SharedExperinceContext>();
-
-	dbContext.Database.Migrate(); 
-
-	SharedExperinceContext.Seed(dbContext); 
-}
-
 
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
     app.UseSwaggerUI();
+    
+    // Apply migrations and seed the database
+    using (var scope = app.Services.CreateScope())
+    {
+        var services = scope.ServiceProvider;
+        var context = services.GetRequiredService<SharedExperiencesDbContext>();
+        
+        // Apply pending migrations
+        context.Database.Migrate();
+        
+        // Seed the database
+        var seeder = services.GetRequiredService<DbSeeder>();
+        seeder.Seed();
+    }
 }
 
 app.UseHttpsRedirection();
