@@ -20,7 +20,6 @@ namespace ExperienceService.Data
 
             if (!_context.Providers.Any())
             {
-                // Add sample providers matching the second file
                 var providers = new List<Provider>
                 {
                     new Provider { CVR = "11111114", Name = "Noah's Hotel", Address = "Finlandsgade 17, 8200 Aarhus N", Number = "+45 71555080" },
@@ -35,7 +34,6 @@ namespace ExperienceService.Data
 
             if (!_context.Services.Any())
             {
-                // Add sample services matching the second file
                 var services = new List<Service>
                 {
                     new Service 
@@ -77,7 +75,6 @@ namespace ExperienceService.Data
 
             if (!_context.Guests.Any())
             {
-                // Add sample guests matching the second file
                 var guests = new List<Guest>
                 {
                     new Guest { Name = "Joan Eriksen", Number = "+45 11113333", Age = 27 },

@@ -28,6 +28,10 @@ builder.Services.AddDbContext<SharedExperiencesDbContext>(options =>
 // Add services
 builder.Services.AddScoped<DbSeeder>();
 builder.Services.AddScoped<ServiceService>();
+builder.Services.AddScoped<ProviderService>();
+builder.Services.AddScoped<SharedExperiencesService>();
+
+
 
 var app = builder.Build();
 
