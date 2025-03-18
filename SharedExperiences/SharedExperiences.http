@@ -1,0 +1,6 @@
+@SharedExperiences_HostAddress = http://localhost:5195
+
+GET {{SharedExperiences_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###
