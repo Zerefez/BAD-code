@@ -25,9 +25,9 @@ namespace ExperienceService.Data.EntityTypeConfigurations
             builder.Property(p => p.CVR)
                 .HasMaxLength(20);
             
-            builder.Property(p => p.TouristicOperatorPermit)
-                .IsRequired()
-                .HasMaxLength(20);
+            //builder.Property(p => p.TouristicOperatorPermit)
+             //   .IsRequired()
+               // .HasMaxLength(20);
                 
             // Relationships
             builder.HasMany(p => p.Services)

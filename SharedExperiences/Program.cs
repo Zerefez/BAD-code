@@ -22,8 +22,13 @@ builder.Services.AddSwaggerGen();
 builder.Services.AddTransient<IConfigureOptions<SwaggerGenOptions>, ConfigureSwaggerOptions>();
 
 // Add DbContext
+var connectionString = "Data Source=127.0.0.1,1433;Database=SharedExperincesDB;User Id=sa;Password=Zerefez7253!;TrustServerCertificate=True";
+
+
+Console.WriteLine($"Connection string: {connectionString}");
+
 builder.Services.AddDbContext<SharedExperiencesDbContext>(options =>
-    options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
+	options.UseSqlServer(connectionString));
 
 // Add services
 builder.Services.AddScoped<DbSeeder>();
