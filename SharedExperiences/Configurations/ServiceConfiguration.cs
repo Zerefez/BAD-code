@@ -19,8 +19,7 @@ namespace ExperienceService.Data.EntityTypeConfigurations
                 .HasMaxLength(500);
                 
             builder.Property(s => s.Price)
-                .IsRequired()
-                .HasColumnType("decimal(18,2)");
+                .IsRequired();
                 
             // Relationships
             builder.HasOne(s => s.Provider)

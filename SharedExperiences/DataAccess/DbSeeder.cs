@@ -40,7 +40,7 @@ namespace ExperienceService.Data
                     { 
                         Name = "Night at Noah's Hotel Single Room", 
                         Description = "A cozy single room at Noah's Hotel.", 
-                        Price = 730.50M, 
+                        Price = 730, 
                         Date = new DateTime(2024, 6, 15), 
                         ProviderId = 1
                     },
@@ -48,7 +48,7 @@ namespace ExperienceService.Data
                     { 
                         Name = "Night at Noah's Hotel Double Room", 
                         Description = "A spacious double room at Noah's Hotel.", 
-                        Price = 910.99M, 
+                        Price = 910, 
                         Date = new DateTime(2024, 6, 15), 
                         ProviderId = 1
                     },
@@ -56,7 +56,7 @@ namespace ExperienceService.Data
                     { 
                         Name = "Flight AAR – VIE", 
                         Description = "One-way flight from Aarhus (AAR) to Vienna (VIE).", 
-                        Price = 1000.70M, 
+                        Price = 1000, 
                         Date = new DateTime(2024, 7, 1), 
                         ProviderId = 3
                     },
@@ -64,7 +64,7 @@ namespace ExperienceService.Data
                     { 
                         Name = "Vienna Historic Center Walking Tour", 
                         Description = "Guided walking tour of Vienna's historic center.", 
-                        Price = 100.00M, 
+                        Price = 100, 
                         Date = new DateTime(2024, 7, 2), 
                         ProviderId = 5
                     }

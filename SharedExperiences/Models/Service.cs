@@ -17,7 +17,7 @@ namespace ExperienceService.Models
         
         [Required]
         [PositivePrice(ErrorMessage = "Price must be greater than or equal to 0")]
-        public decimal Price { get; set; } // Changed from decimal to int in Migration3
+        public int Price { get; set; } // Changed from decimal to int in Migration3
 
         public DateTime Date { get; set; } // Added in Migration2
 
