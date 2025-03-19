@@ -22,9 +22,9 @@ namespace ExperienceService.Data.EntityTypeConfigurations
                 .IsRequired()
                 .HasMaxLength(20);
                 
-            builder.Property(p => p.CVR)
+            /*builder.Property(p => p.CVR)
                 .HasMaxLength(20);
-            
+            */
             //builder.Property(p => p.TouristicOperatorPermit)
              //   .IsRequired()
                // .HasMaxLength(20);

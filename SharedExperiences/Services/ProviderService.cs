@@ -53,7 +53,7 @@ namespace ExperienceService.Services
             existingProvider.Name = provider.Name;
             existingProvider.Address = provider.Address;
             existingProvider.Number = provider.Number;
-            existingProvider.CVR = provider.CVR;
+            //existingProvider.CVR = provider.CVR;
             existingProvider.TouristicOperatorPermit = provider.TouristicOperatorPermit;
 
             await _context.SaveChangesAsync();
