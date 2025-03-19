@@ -82,4 +82,27 @@ public class SharedExperiencesController :  ControllerBase
 
         return NoContent();
     }
+
+    [HttpGet("Table1")]
+    public async Task<ActionResult<IEnumerable<object>>> Table1()
+    {
+        var providers = await _sharedExperiencesService.Table1();
+        return Ok(providers);
+    }
+
+    [HttpGet("Table2")]
+    public async Task<ActionResult<IEnumerable<object>>> Table2()
+    {
+        var providers = await _sharedExperiencesService.Table2();
+        return Ok(providers);
+    }
+    
+    [HttpGet("Table3")]
+    public async Task<ActionResult<IEnumerable<object>>> Table3()
+    {
+        var providers = await _sharedExperiencesService.Table3();
+        return Ok(providers);
+    }
+
+
 }

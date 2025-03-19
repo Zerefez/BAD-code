@@ -56,4 +56,47 @@ public class SharedExperiencesService
         await _context.SaveChangesAsync();
         return true;
     }
+
+    
+    // Table 1
+    public async Task<IEnumerable<object>> Table1()
+    {
+        return await _context.Providers
+            .Select(p => new
+            {
+                p.Name,
+                p.Address,
+                p.Number,
+                p.TouristicOperatorPermit
+            })
+            .ToListAsync();
+    }
+
+    // Table 2
+    public async Task<IEnumerable<object>> Table2()
+    {
+        return await _context.Services
+            .Select(s => new
+            {
+                s.Name,
+                s.Description,
+                s.Price
+            })
+            .ToListAsync();
+    }
+
+    // Table 3
+    public async Task<IEnumerable<object>> Table3()
+    {
+        return await _context.SharedExperiences
+            .OrderByDescending(se => se.Date)
+            .Select(se => new
+            {
+                se.Name,
+                se.Date
+            })
+            .ToListAsync();
+    }
+
+
 }
