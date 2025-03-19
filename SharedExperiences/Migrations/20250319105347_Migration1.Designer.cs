@@ -12,8 +12,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace SharedExperiences.Migrations
 {
     [DbContext(typeof(SharedExperiencesDbContext))]
-    [Migration("20250318164608_InitialCreate")]
-    partial class InitialCreate
+    [Migration("20250319105347_Migration1")]
+    partial class Migration1
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -132,7 +132,8 @@ namespace SharedExperiences.Migrations
 
                     b.Property<string>("TouristicOperatorPermit")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .HasMaxLength(20)
+                        .HasColumnType("nvarchar(20)");
 
                     b.HasKey("ProviderId");
 

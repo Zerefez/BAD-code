@@ -7,6 +7,8 @@ namespace ExperienceService.Models
         public string Address { get; set; }
         public string Number { get; set; }
         public string CVR { get; set; }
+
+        public string TouristicOperatorPermit { get; set; } // Added in Migration 1
         
         
         // Navigation properties

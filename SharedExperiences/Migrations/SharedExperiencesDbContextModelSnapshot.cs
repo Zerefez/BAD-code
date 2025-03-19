@@ -127,6 +127,11 @@ namespace SharedExperiences.Migrations
                         .HasMaxLength(20)
                         .HasColumnType("nvarchar(20)");
 
+                    b.Property<string>("TouristicOperatorPermit")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("nvarchar(20)");
+
                     b.HasKey("ProviderId");
 
                     b.ToTable("Providers");

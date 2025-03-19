@@ -5,25 +5,26 @@
 namespace SharedExperiences.Migrations
 {
     /// <inheritdoc />
-    public partial class AddPendingChanges : Migration
+    public partial class Migration1 : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
         {
-            migrationBuilder.DropColumn(
+            migrationBuilder.AddColumn<string>(
                 name: "TouristicOperatorPermit",
-                table: "Providers");
+                table: "Providers",
+                type: "nvarchar(20)",
+                maxLength: 20,
+                nullable: false,
+                defaultValue: "");
         }
 
         /// <inheritdoc />
         protected override void Down(MigrationBuilder migrationBuilder)
         {
-            migrationBuilder.AddColumn<string>(
+            migrationBuilder.DropColumn(
                 name: "TouristicOperatorPermit",
-                table: "Providers",
-                type: "nvarchar(max)",
-                nullable: false,
-                defaultValue: "");
+                table: "Providers");
         }
     }
 }
