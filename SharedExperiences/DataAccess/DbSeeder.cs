@@ -22,11 +22,11 @@ namespace ExperienceService.Data
             {
                 var providers = new List<Provider>
                 {
-                    new Provider { /*CVR = "11111114"*/ Name = "Noah's Hotel", Address = "Finlandsgade 17, 8200 Aarhus N", Number = "+45 71555080", TouristicOperatorPermit = "12345678" },
-                    new Provider { /*CVR = "22222222"*/ Name = "Grand Ocean Resort", Address = "Beach Road 42, 8000 Aarhus C", Number = "+45 71717171", TouristicOperatorPermit = "87654321" },
-                    new Provider { /*CVR = "33333333"*/ Name = "Skyline Adventures", Address = "Mountain View 99, 9000 Aalborg", Number = "+45 70707070", TouristicOperatorPermit = "12348765" },
-                    new Provider { /*CVR = "44444444"*/ Name = "Sunset Bistro", Address = "Harbor Street 12, 5000 Odense", Number = "+45 72727272", TouristicOperatorPermit = "87651234" },
-                    new Provider { /*CVR = "55555555"*/ Name = "City Tour Guides", Address = "Old Town Square 3, 1000 Copenhagen", Number = "+45 73737373", TouristicOperatorPermit = "12345679" }
+                    new Provider { Name = "Noah's Hotel", Address = "Finlandsgade 17, 8200 Aarhus N", Number = "+45 71555080", TouristicOperatorPermit = "/Noas Hotel/Permit" },
+                    new Provider { Name = "Grand Ocean Resort", Address = "Beach Road 42, 8000 Aarhus C", Number = "+45 71717171", TouristicOperatorPermit = "/Grand Ocean Resort/Permit" },
+                    new Provider { Name = "Skyline Adventures", Address = "Mountain View 99, 9000 Aalborg", Number = "+45 70707070", TouristicOperatorPermit = "/Skyline Adventures/Permit" },
+                    new Provider { Name = "Sunset Bistro", Address = "Harbor Street 12, 5000 Odense", Number = "+45 72727272", TouristicOperatorPermit = "/Sunset Bistro/Permit" },
+                    new Provider { Name = "City Tour Guides", Address = "Old Town Square 3, 1000 Copenhagen", Number = "+45 73737373", TouristicOperatorPermit = "/City Tour Guides/Permit" }
                 };
                 _context.Providers.AddRange(providers);
                 _context.SaveChanges();
@@ -42,7 +42,7 @@ namespace ExperienceService.Data
                         Description = "A cozy single room at Noah's Hotel.", 
                         Price = 730, 
                         Date = new DateTime(2024, 6, 15), 
-                        ProviderId = 1
+                        ProviderId = _context.Providers.First(p => p.Name == "Noah's Hotel").ProviderId
                     },
                     new Service 
                     { 
@@ -50,7 +50,7 @@ namespace ExperienceService.Data
                         Description = "A spacious double room at Noah's Hotel.", 
                         Price = 910, 
                         Date = new DateTime(2024, 6, 15), 
-                        ProviderId = 1
+                        ProviderId = _context.Providers.First(p => p.Name == "Noah's Hotel").ProviderId
                     },
                     new Service 
                     { 
@@ -58,7 +58,7 @@ namespace ExperienceService.Data
                         Description = "One-way flight from Aarhus (AAR) to Vienna (VIE).", 
                         Price = 1000, 
                         Date = new DateTime(2024, 7, 1), 
-                        ProviderId = 3
+                        ProviderId = _context.Providers.First(p => p.Name == "Skyline Adventures").ProviderId
                     },
                     new Service 
                     { 
@@ -66,7 +66,7 @@ namespace ExperienceService.Data
                         Description = "Guided walking tour of Vienna's historic center.", 
                         Price = 100, 
                         Date = new DateTime(2024, 7, 2), 
-                        ProviderId = 5
+                        ProviderId = _context.Providers.First(p => p.Name == "City Tour Guides").ProviderId
                     }
                 };
                 _context.Services.AddRange(services);
@@ -88,20 +88,25 @@ namespace ExperienceService.Data
 
             if (!_context.SharedExperiences.Any())
             {
-                // Add sample shared experiences matching the second file
                 var sharedExperiences = new List<SharedExperience>
                 {
                     new SharedExperience 
                     { 
                         Name = "Trip to Austria", 
                         Description = "A group trip exploring Vienna, including flights, hotel stays, and guided tours.",
-                        Date = DateTime.Now.AddDays(30)
+                        Date = DateTime.Now
                     },
                     new SharedExperience 
                     { 
                         Name = "Dinner Downtown", 
                         Description = "A fine dining experience at a highly-rated restaurant in the city center.",
-                        Date = DateTime.Now.AddDays(15)
+                        Date = DateTime.Now
+                    },
+                    new SharedExperience 
+                    { 
+                        Name = "Pottery Weekend", 
+                        Description = "Pottery weekend with good colleagues.",
+                        Date = DateTime.Now
                     }
                 };
                 _context.SharedExperiences.AddRange(sharedExperiences);
@@ -114,12 +119,26 @@ namespace ExperienceService.Data
                 var walkingTour = _context.Services.First(s => s.Name == "Vienna Historic Center Walking Tour");
 
                 tripToAustria.Services = new List<Service> { singleRoom, flight, walkingTour };
+                
+                // Associate guests with Trip to Austria
+                var joan = _context.Guests.First(g => g.Name == "Joan Eriksen");
+                var suzanne = _context.Guests.First(g => g.Name == "Suzanne Mortensen");
+                var patrick = _context.Guests.First(g => g.Name == "Patrick Larsen");
+                var anne = _context.Guests.First(g => g.Name == "Anne Christensen");
+                
+                tripToAustria.Guests = new List<Guest> { joan, suzanne, patrick, anne };
+
+                walkingTour.Guests = new List<Guest> { joan, suzanne };
+                singleRoom.Guests = new List<Guest> { joan, suzanne, patrick, anne };
+
+                _context.SharedExperiences.Update(tripToAustria);
                 _context.SaveChanges();
             }
 
+            
+
             if (!_context.Discounts.Any())
             {
-                // Add sample discounts matching the second file
                 var discounts = new List<Discount>
                 {
                     new Discount 
@@ -151,42 +170,47 @@ namespace ExperienceService.Data
                 _context.SaveChanges();
             }
 
-            // Add registrations (equivalent to guest-service relationships)
+            // Set up registrations and billings
             if (!_context.Billings.Any())
             {
                 var walkingTourId = _context.Services.First(s => s.Name == "Vienna Historic Center Walking Tour").ServiceId;
                 var singleRoomId = _context.Services.First(s => s.Name == "Night at Noah's Hotel Single Room").ServiceId;
-                var joanId = _context.Guests.First(g => g.Name == "Joan Eriksen").GuestId;
-                var suzanneId = _context.Guests.First(g => g.Name == "Suzanne Mortensen").GuestId;
+                var doubleRoomId = _context.Services.First(s => s.Name == "Night at Noah's Hotel Double Room").ServiceId;
+                var flightId = _context.Services.First(s => s.Name == "Flight AAR – VIE").ServiceId;
 
-                // Use billings to represent the registrations
+                var walkingTourPrice = _context.Services.First(s => s.ServiceId == walkingTourId).Price;
+                var singleRoomPrice = _context.Services.First(s => s.ServiceId == singleRoomId).Price;
+                var flightPrice = _context.Services.First(s => s.ServiceId == flightId).Price;
+
+                var walkingTourProviderId = _context.Services.First(s => s.ServiceId == walkingTourId).ProviderId;
+                var singleRoomProviderId = _context.Services.First(s => s.ServiceId == singleRoomId).ProviderId;
+                var flightProviderId = _context.Services.First(s => s.ServiceId == flightId).ProviderId;
+
+                var joan = _context.Guests.First(g => g.Name == "Joan Eriksen");
+                var suzanne = _context.Guests.First(g => g.Name == "Suzanne Mortensen");
+                var patrick = _context.Guests.First(g => g.Name == "Patrick Larsen");
+                var anne = _context.Guests.First(g => g.Name == "Anne Christensen");
+
+                // Create billings based on the registrations in the second file
                 var billings = new List<Billing>
                 {
-                    new Billing 
-                    { 
-                        GuestId = joanId, 
-                        ProviderId = _context.Services.First(s => s.ServiceId == walkingTourId).ProviderId,
-                        Amount = _context.Services.First(s => s.ServiceId == walkingTourId).Price
-                    },
-                    new Billing 
-                    { 
-                        GuestId = suzanneId, 
-                        ProviderId = _context.Services.First(s => s.ServiceId == walkingTourId).ProviderId,
-                        Amount = _context.Services.First(s => s.ServiceId == walkingTourId).Price
-                    },
-                    new Billing 
-                    { 
-                        GuestId = joanId, 
-                        ProviderId = _context.Services.First(s => s.ServiceId == singleRoomId).ProviderId,
-                        Amount = _context.Services.First(s => s.ServiceId == singleRoomId).Price
-                    },
-                    new Billing 
-                    { 
-                        GuestId = suzanneId, 
-                        ProviderId = _context.Services.First(s => s.ServiceId == singleRoomId).ProviderId,
-                        Amount = _context.Services.First(s => s.ServiceId == singleRoomId).Price
-                    }
+                    // Walking Tour - 2 guests
+                    new Billing { GuestId = joan.GuestId, ProviderId = walkingTourProviderId, Amount = walkingTourPrice },
+                    new Billing { GuestId = suzanne.GuestId, ProviderId = walkingTourProviderId, Amount = walkingTourPrice },
+                    
+                    // Single Room - 4 guests
+                    new Billing { GuestId = joan.GuestId, ProviderId = singleRoomProviderId, Amount = singleRoomPrice },
+                    new Billing { GuestId = suzanne.GuestId, ProviderId = singleRoomProviderId, Amount = singleRoomPrice },
+                    new Billing { GuestId = patrick.GuestId, ProviderId = singleRoomProviderId, Amount = singleRoomPrice },
+                    new Billing { GuestId = anne.GuestId, ProviderId = singleRoomProviderId, Amount = singleRoomPrice },
+                    
+                    // Flight - 4 guests
+                    new Billing { GuestId = joan.GuestId, ProviderId = flightProviderId, Amount = flightPrice },
+                    new Billing { GuestId = suzanne.GuestId, ProviderId = flightProviderId, Amount = flightPrice },
+                    new Billing { GuestId = patrick.GuestId, ProviderId = flightProviderId, Amount = flightPrice },
+                    new Billing { GuestId = anne.GuestId, ProviderId = flightProviderId, Amount = flightPrice }
                 };
+                
                 _context.Billings.AddRange(billings);
                 _context.SaveChanges();
             }

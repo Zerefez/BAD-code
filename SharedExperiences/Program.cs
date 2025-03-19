@@ -22,7 +22,7 @@ builder.Services.AddSwaggerGen();
 builder.Services.AddTransient<IConfigureOptions<SwaggerGenOptions>, ConfigureSwaggerOptions>();
 
 // Add DbContext
-var connectionString = "Data Source=127.0.0.1,1433;Database=SharedExperincesDB;User Id=sa;Password=Yro..2452004;TrustServerCertificate=True";
+var connectionString = "Data Source=127.0.0.1,1433;Database=SharedExperincesDB;User Id=sa;Password=Zerefez7253!;TrustServerCertificate=True";
 
 
 Console.WriteLine($"Connection string: {connectionString}");

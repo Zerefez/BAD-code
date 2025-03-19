@@ -25,6 +25,10 @@ namespace ExperienceService.Models
         public int ProviderId { get; set; }
         public Provider Provider { get; set; }
         public List<SharedExperience> SharedExperiences { get; set; } = new();
+
+        public List<Guest> Guests { get; set; } = new();
         public Discount Discount { get; set; }
+
+
     }
 }

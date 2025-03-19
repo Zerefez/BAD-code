@@ -58,7 +58,7 @@ public class SharedExperiencesService
     }
 
     
-    // Table 1
+    // Table 1 - Get the data collected for each experience provider.
     public async Task<IEnumerable<object>> Table1()
     {
         return await _context.Providers
@@ -72,7 +72,7 @@ public class SharedExperiencesService
             .ToListAsync();
     }
 
-    // Table 2
+    // Table 2 - List the experiences/services available in the system.
     public async Task<IEnumerable<object>> Table2()
     {
         return await _context.Services
@@ -85,7 +85,7 @@ public class SharedExperiencesService
             .ToListAsync();
     }
 
-    // Table 3
+    // Table 3 - Get the list of shared experiences and their date in the system in descending order
     public async Task<IEnumerable<object>> Table3()
     {
         return await _context.SharedExperiences
@@ -94,6 +94,100 @@ public class SharedExperiencesService
             {
                 se.Name,
                 se.Date
+            })
+            .ToListAsync();
+    }
+
+    // Table 4 - Get guests registered for a shared experience
+    public async Task<IEnumerable<object>> Table4(int sharedExperienceId)
+    {
+        return await _context.SharedExperiences
+            .Where(se => se.SharedExperienceId == sharedExperienceId)
+            .SelectMany(se => se.Guests)
+            .Select(g => new
+            {
+                g.Name
+            })
+            .ToListAsync();
+    }
+
+    // Table 5 - Get experiences included in a shared experience
+    public async Task<IEnumerable<object>> Table5(int sharedExperienceId)
+    {
+        return await _context.Services
+            .Where(s => s.SharedExperiences.Any(se => se.SharedExperienceId == sharedExperienceId))
+            .Select(s => new
+            {
+                s.Name
+            })
+            .ToListAsync();
+    }
+
+    // Table 6 - Get the guests registered for one of the experiences/services in a shared experience.
+    public async Task<IEnumerable<object>> Table6(int serviceId)
+    {
+        return await _context.Services
+            .Where(s => s.ServiceId == serviceId)
+            .Select(s => new {
+                ProviderName = s.Provider.Name,
+                ServiceName = s.Name,
+                Guests = s.SharedExperiences
+                    .SelectMany(se => se.Guests)
+                    .Select(g => g.Name)
+                    .Distinct()
+            })
+            .SelectMany(
+                x => x.Guests,
+                (x, guestName) => new {
+                    GuestName = guestName,
+                    x.ServiceName
+                }
+            )
+            .ToListAsync();
+    }
+
+   // Table 7 -Get the minimum, average, and maximum price for the whole experience in the system.
+    public async Task<object> Table7()
+    {
+        var minPrice = await _context.Services.MinAsync(s => s.Price);
+        var avgPrice = await _context.Services.AverageAsync(s => s.Price);
+        var maxPrice = await _context.Services.MaxAsync(s => s.Price);
+
+        return new
+        {
+            MinPrice = minPrice,
+            AvgPrice = avgPrice,
+            MaxPrice = maxPrice
+        };
+    }
+
+    // Table 8 - Get the number of guests and sum of sales for each experience available in the system.
+    public async Task<IEnumerable<object>> Table8()
+    {
+        return await _context.Services
+            .Select(s => new
+            {
+                s.Name,
+                NumberOfGuests = s.SharedExperiences
+                    .SelectMany(se => se.Guests)
+                    .Distinct()
+                    .Count(), // Ensure distinct guests are counted
+                TotalSales = s.Price * s.SharedExperiences
+                    .SelectMany(se => se.Guests)
+                    .Distinct()
+                    .Count()
+            })
+            .ToListAsync();
+    }
+
+    // Table 9 - Get the total amount billed for each guest in the system.
+    public async Task<IEnumerable<object>> Table9()
+    {
+        return await _context.Guests
+            .Select(g => new
+            {
+                g.Name,
+                TotalAmountBilled = g.Billings.Sum(b => b.Amount)
             })
             .ToListAsync();
     }

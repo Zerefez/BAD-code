@@ -29,6 +29,10 @@ namespace ExperienceService.Data.EntityTypeConfigurations
             builder.HasOne(s => s.Discount)
                 .WithOne(d => d.Service)
                 .HasForeignKey<Discount>(d => d.ServiceId);
+            
+            builder.HasMany(s => s.Guests)
+                .WithMany(g => g.Services)
+                .UsingEntity(j => j.ToTable("GuestService"));
                 
             // Many-to-many relationship with SharedExperience is defined in SharedExperienceConfiguration
         }

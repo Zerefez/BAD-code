@@ -17,8 +17,20 @@ namespace ExperienceService.Data.EntityTypeConfigurations
             builder.Property(g => g.Number)
                 .IsRequired()
                 .HasMaxLength(20);
+
+            builder.Property(g => g.Age)
+                .IsRequired();
                 
             // Relationships are defined in the many-to-many relationship in SharedExperienceConfiguration
+
+            builder.HasMany(g => g.Billings)
+                .WithOne(b => b.Guest)
+                .HasForeignKey(b => b.GuestId);
+
+            builder.HasMany(g => g.SharedExperiences)
+                .WithMany(se => se.Guests)
+                .UsingEntity(j => j.ToTable("GuestSharedExperience"));
+            
         }
     }
 }

@@ -104,5 +104,46 @@ public class SharedExperiencesController :  ControllerBase
         return Ok(providers);
     }
 
+    [HttpGet("Table4")]
+    public async Task<ActionResult<IEnumerable<object>>> Table4(int sharedExperienceId)
+    {
+        var providers = await _sharedExperiencesService.Table4(sharedExperienceId);
+        return Ok(providers);
+    }   
+
+    [HttpGet("Table5")]
+    public async Task<ActionResult<IEnumerable<object>>> Table5(int sharedExperienceId)
+    {
+        var providers = await _sharedExperiencesService.Table5(sharedExperienceId);
+        return Ok(providers);
+    }
+
+    [HttpGet("Table6")]
+    public async Task<ActionResult<IEnumerable<object>>> Table6( int serviceId )
+    {
+        var providers = await _sharedExperiencesService.Table6( serviceId);
+        return Ok(providers);
+    }
+
+    [HttpGet("Table7")]
+    public async Task<ActionResult<IEnumerable<object>>> Table7()
+    {
+        var providers = await _sharedExperiencesService.Table7();
+        return Ok(providers);
+    }
+
+    [HttpGet("Table8")]
+    public async Task<ActionResult<IEnumerable<object>>> Table8()
+    {
+        var providers = await _sharedExperiencesService.Table8();
+        return Ok(providers);
+    }
+
+    [HttpGet("Table9")]
+    public async Task<ActionResult<IEnumerable<object>>> Table9()
+    {
+        var providers = await _sharedExperiencesService.Table9();
+        return Ok(providers);
+    }
 
 }
