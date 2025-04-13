@@ -1,6 +1,7 @@
 using ExperienceService.Models;
 using ExperienceService.Services;
 using Microsoft.AspNetCore.Mvc;
+using SharedExperiences.DTO;
 
 namespace ExperienceService.Controllers
 {
@@ -39,12 +40,21 @@ namespace ExperienceService.Controllers
 
         // POST: api/Services
         [HttpPost]
-        public async Task<ActionResult<Service>> CreateService([FromBody] Service service)
+        public async Task<ActionResult<Service>> CreateService([FromBody] CreateAndUpdateServiceDto serviceDto)
         {
             if (!ModelState.IsValid)
             {
                 return BadRequest(ModelState);
             }
+
+            var service = new Service
+            {
+                Name = serviceDto.Name,
+                Description = serviceDto.Description,
+                Price = (int)serviceDto.Price,
+                ProviderId = serviceDto.ProviderId.ToString()
+                // Map other properties as needed
+            };
 
             var createdService = await _serviceService.CreateServiceAsync(service);
             return CreatedAtAction(nameof(GetService), new { id = createdService.Id }, createdService);
@@ -52,19 +62,28 @@ namespace ExperienceService.Controllers
 
         // PUT: api/Services/5
         [HttpPut("{id}")]
-        public async Task<IActionResult> UpdateService(string id, [FromBody] Service service)
+        public async Task<IActionResult> UpdateService(string id, [FromBody] CreateAndUpdateServiceDto serviceDto)
         {
-            if (id != service.Id)
-            {
-                return BadRequest();
-            }
-
             if (!ModelState.IsValid)
             {
                 return BadRequest(ModelState);
             }
 
-            var updatedService = await _serviceService.UpdateServiceAsync(id, service);
+            // Get the existing service first
+            var existingService = await _serviceService.GetServiceByIdAsync(id);
+            if (existingService == null)
+            {
+                return NotFound();
+            }
+
+            // Update properties from DTO
+            existingService.Name = serviceDto.Name;
+            existingService.Description = serviceDto.Description;
+            existingService.Price = (int)serviceDto.Price;
+            existingService.ProviderId = serviceDto.ProviderId.ToString();
+            // Map other properties as needed
+
+            var updatedService = await _serviceService.UpdateServiceAsync(id, existingService);
             if (updatedService == null)
             {
                 return NotFound();

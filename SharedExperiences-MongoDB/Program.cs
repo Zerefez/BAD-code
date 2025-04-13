@@ -14,6 +14,16 @@ builder.Services.AddControllers()
         options.JsonSerializerOptions.ReferenceHandler = ReferenceHandler.Preserve;
     });
 
+// Add CORS
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("AllowAll", 
+        builder => builder
+            .AllowAnyOrigin()
+            .AllowAnyMethod()
+            .AllowAnyHeader());
+});
+
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
@@ -31,11 +41,16 @@ builder.Services.AddScoped<SharedExperiencesService>();
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
+// Enable Swagger for all environments
+app.UseSwagger();
+app.UseSwaggerUI();
+
+// Enable CORS
+app.UseCors("AllowAll");
+
+// Seed the database only in development
 if (app.Environment.IsDevelopment())
 {
-    app.UseSwagger();
-    app.UseSwaggerUI();
-    
     // Seed the database
     using (var scope = app.Services.CreateScope())
     {

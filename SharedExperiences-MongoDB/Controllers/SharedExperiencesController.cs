@@ -1,14 +1,13 @@
 using ExperienceService.Models;
 using ExperienceService.Services;
-
-
 using Microsoft.AspNetCore.Mvc;
+using SharedExperiences.DTO;
 
 namespace ExperienceService.Controllers;
 
 [Route("api/[controller]")]
 [ApiController]
-public class SharedExperiencesController :  ControllerBase
+public class SharedExperiencesController : ControllerBase
 {
     private readonly SharedExperiencesService _sharedExperiencesService;
 
@@ -41,12 +40,20 @@ public class SharedExperiencesController :  ControllerBase
 
     // POST: api/SharedExperiences
     [HttpPost]
-    public async Task<ActionResult<Provider>> CreateProvider([FromBody] Provider provider)
+    public async Task<ActionResult<Provider>> CreateProvider([FromBody] CreateAndUpdateProviderDto providerDto)
     {
         if (!ModelState.IsValid)
         {
             return BadRequest(ModelState);
         }
+
+        var provider = new Provider
+        {
+            Name = providerDto.Name,
+            Address = providerDto.Address,
+            Number = providerDto.Number,
+            TouristicOperatorPermit = providerDto.TouristicOperatorPermit
+        };
 
         var createdProvider = await _sharedExperiencesService.CreateProviderAsync(provider);
         return CreatedAtAction(nameof(GetProvider), new { id = createdProvider.Id }, createdProvider);
@@ -54,14 +61,27 @@ public class SharedExperiencesController :  ControllerBase
 
     // PUT: api/SharedExperiences/5
     [HttpPut("{id}")]
-    public async Task<IActionResult> UpdateProvider(string id, [FromBody] Provider provider)
+    public async Task<IActionResult> UpdateProvider(string id, [FromBody] CreateAndUpdateProviderDto providerDto)
     {
-        if (id != provider.Id)
+        if (!ModelState.IsValid)
         {
-            return BadRequest();
+            return BadRequest(ModelState);
         }
 
-        var updatedProvider = await _sharedExperiencesService.UpdateProviderAsync(id, provider);
+        // Get the existing provider first
+        var existingProvider = await _sharedExperiencesService.GetProviderByIdAsync(id);
+        if (existingProvider == null)
+        {
+            return NotFound();
+        }
+
+        // Update properties from DTO
+        existingProvider.Name = providerDto.Name;
+        existingProvider.Address = providerDto.Address;
+        existingProvider.Number = providerDto.Number;
+        existingProvider.TouristicOperatorPermit = providerDto.TouristicOperatorPermit;
+
+        var updatedProvider = await _sharedExperiencesService.UpdateProviderAsync(id, existingProvider);
         if (updatedProvider == null)
         {
             return NotFound();
@@ -86,64 +106,63 @@ public class SharedExperiencesController :  ControllerBase
     [HttpGet("Table1")]
     public async Task<ActionResult<IEnumerable<object>>> Table1()
     {
-        var providers = await _sharedExperiencesService.Table1();
-        return Ok(providers);
+        var results = await _sharedExperiencesService.Table1();
+        return Ok(results);
     }
 
     [HttpGet("Table2")]
     public async Task<ActionResult<IEnumerable<object>>> Table2()
     {
-        var providers = await _sharedExperiencesService.Table2();
-        return Ok(providers);
+        var results = await _sharedExperiencesService.Table2();
+        return Ok(results);
     }
     
     [HttpGet("Table3")]
     public async Task<ActionResult<IEnumerable<object>>> Table3()
     {
-        var providers = await _sharedExperiencesService.Table3();
-        return Ok(providers);
+        var results = await _sharedExperiencesService.Table3();
+        return Ok(results);
     }
 
     [HttpGet("Table4")]
     public async Task<ActionResult<IEnumerable<object>>> Table4(string sharedExperienceId)
     {
-        var providers = await _sharedExperiencesService.Table4(sharedExperienceId);
-        return Ok(providers);
+        var results = await _sharedExperiencesService.Table4(sharedExperienceId);
+        return Ok(results);
     }   
 
     [HttpGet("Table5")]
     public async Task<ActionResult<IEnumerable<object>>> Table5(string sharedExperienceId)
     {
-        var providers = await _sharedExperiencesService.Table5(sharedExperienceId);
-        return Ok(providers);
+        var results = await _sharedExperiencesService.Table5(sharedExperienceId);
+        return Ok(results);
     }
 
     [HttpGet("Table6")]
     public async Task<ActionResult<IEnumerable<object>>> Table6(string serviceId)
     {
-        var providers = await _sharedExperiencesService.Table6(serviceId);
-        return Ok(providers);
+        var results = await _sharedExperiencesService.Table6(serviceId);
+        return Ok(results);
     }
 
     [HttpGet("Table7")]
     public async Task<ActionResult<IEnumerable<object>>> Table7()
     {
-        var providers = await _sharedExperiencesService.Table7();
-        return Ok(providers);
+        var results = await _sharedExperiencesService.Table7();
+        return Ok(results);
     }
 
     [HttpGet("Table8")]
     public async Task<ActionResult<IEnumerable<object>>> Table8()
     {
-        var providers = await _sharedExperiencesService.Table8();
-        return Ok(providers);
+        var results = await _sharedExperiencesService.Table8();
+        return Ok(results);
     }
 
     [HttpGet("Table9")]
     public async Task<ActionResult<IEnumerable<object>>> Table9()
     {
-        var providers = await _sharedExperiencesService.Table9();
-        return Ok(providers);
+        var results = await _sharedExperiencesService.Table9();
+        return Ok(results);
     }
-
 }

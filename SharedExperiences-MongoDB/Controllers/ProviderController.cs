@@ -1,6 +1,7 @@
 using ExperienceService.Models;
 using ExperienceService.Services;
 using Microsoft.AspNetCore.Mvc;
+using SharedExperiences.DTO;
 
 namespace ExperienceService.Controllers
 {
@@ -47,12 +48,20 @@ namespace ExperienceService.Controllers
 
         // POST: api/Providers
         [HttpPost]
-        public async Task<ActionResult<Provider>> CreateProvider([FromBody] Provider provider)
+        public async Task<ActionResult<Provider>> CreateProvider([FromBody] CreateAndUpdateProviderDto providerDto)
         {
             if (!ModelState.IsValid)
             {
                 return BadRequest(ModelState);
             }
+
+            var provider = new Provider
+            {
+                Name = providerDto.Name,
+                Address = providerDto.Address,
+                Number = providerDto.Number,
+                TouristicOperatorPermit = providerDto.TouristicOperatorPermit
+            };
 
             var createdProvider = await _providerService.CreateProviderAsync(provider);
             return CreatedAtAction(nameof(GetProvider), new { id = createdProvider.Id }, createdProvider);
@@ -60,19 +69,27 @@ namespace ExperienceService.Controllers
 
         // PUT: api/Providers/5
         [HttpPut("{id}")]
-        public async Task<IActionResult> UpdateProvider(string id, [FromBody] Provider provider)
+        public async Task<IActionResult> UpdateProvider(string id, [FromBody] CreateAndUpdateProviderDto providerDto)
         {
-            if (id != provider.Id)
-            {
-                return BadRequest();
-            }
-
             if (!ModelState.IsValid)
             {
                 return BadRequest(ModelState);
             }
 
-            var updatedProvider = await _providerService.UpdateProviderAsync(id, provider);
+            // Get the existing provider first
+            var existingProvider = await _providerService.GetProviderByIdAsync(id);
+            if (existingProvider == null)
+            {
+                return NotFound();
+            }
+
+            // Update properties from DTO
+            existingProvider.Name = providerDto.Name;
+            existingProvider.Address = providerDto.Address;
+            existingProvider.Number = providerDto.Number;
+            existingProvider.TouristicOperatorPermit = providerDto.TouristicOperatorPermit;
+
+            var updatedProvider = await _providerService.UpdateProviderAsync(id, existingProvider);
             if (updatedProvider == null)
             {
                 return NotFound();
