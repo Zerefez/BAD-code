@@ -25,7 +25,7 @@ namespace ExperienceService.Controllers
 
         // GET: api/Services/5
         [HttpGet("{id}")]
-        public async Task<ActionResult<Service>> GetService(int id)
+        public async Task<ActionResult<Service>> GetService(string id)
         {
             var service = await _serviceService.GetServiceByIdAsync(id);
 
@@ -47,14 +47,14 @@ namespace ExperienceService.Controllers
             }
 
             var createdService = await _serviceService.CreateServiceAsync(service);
-            return CreatedAtAction(nameof(GetService), new { id = createdService.ServiceId }, createdService);
+            return CreatedAtAction(nameof(GetService), new { id = createdService.Id }, createdService);
         }
 
         // PUT: api/Services/5
         [HttpPut("{id}")]
-        public async Task<IActionResult> UpdateService(int id, [FromBody] Service service)
+        public async Task<IActionResult> UpdateService(string id, [FromBody] Service service)
         {
-            if (id != service.ServiceId)
+            if (id != service.Id)
             {
                 return BadRequest();
             }
@@ -75,7 +75,7 @@ namespace ExperienceService.Controllers
 
         // DELETE: api/Services/5
         [HttpDelete("{id}")]
-        public async Task<IActionResult> DeleteService(int id)
+        public async Task<IActionResult> DeleteService(string id)
         {
             var result = await _serviceService.DeleteServiceAsync(id);
             if (!result)

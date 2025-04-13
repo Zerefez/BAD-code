@@ -1,65 +1,54 @@
 using ExperienceService.Data;
 using ExperienceService.Models;
-using Microsoft.EntityFrameworkCore;
+using MongoDB.Driver;
+using System.Collections.Generic;
+using System.Threading.Tasks;
 
 namespace ExperienceService.Services
 {
     public class ServiceService
     {
-        private readonly SharedExperiencesDbContext _context;
+        private readonly MongoDbContext _context;
 
-        public ServiceService(SharedExperiencesDbContext context)
+        public ServiceService(MongoDbContext context)
         {
             _context = context;
         }
 
         public async Task<IEnumerable<Service>> GetAllServicesAsync()
         {
-            return await _context.Services
-                .Include(s => s.Provider)
-                .Include(s => s.Discount)
-                .ToListAsync();
+            return await _context.Services.Find(_ => true).ToListAsync();
         }
 
-        public async Task<Service> GetServiceByIdAsync(int id)
+        public async Task<Service> GetServiceByIdAsync(string id)
         {
-            return await _context.Services
-                .Include(s => s.Provider)
-                .Include(s => s.Discount)
-                .FirstOrDefaultAsync(s => s.ServiceId == id);
+            return await _context.Services.Find(s => s.Id == id).FirstOrDefaultAsync();
         }
 
         public async Task<Service> CreateServiceAsync(Service service)
         {
-            _context.Services.Add(service);
-            await _context.SaveChangesAsync();
+            await _context.Services.InsertOneAsync(service);
             return service;
         }
 
-        public async Task<Service> UpdateServiceAsync(int id, Service service)
+        public async Task<Service> UpdateServiceAsync(string id, Service service)
         {
-            var existingService = await _context.Services.FindAsync(id);
-            if (existingService == null)
-                return null;
+            var filter = Builders<Service>.Filter.Eq(s => s.Id, id);
+            var update = Builders<Service>.Update
+                .Set(s => s.Name, service.Name)
+                .Set(s => s.Description, service.Description)
+                .Set(s => s.Price, service.Price)
+                .Set(s => s.ProviderId, service.ProviderId)
+                .Set(s => s.Date, service.Date);
 
-            existingService.Name = service.Name;
-            existingService.Description = service.Description;
-            existingService.Price = service.Price;
-            existingService.ProviderId = service.ProviderId;
-
-            await _context.SaveChangesAsync();
-            return existingService;
+            await _context.Services.UpdateOneAsync(filter, update);
+            return await GetServiceByIdAsync(id);
         }
 
-        public async Task<bool> DeleteServiceAsync(int id)
+        public async Task<bool> DeleteServiceAsync(string id)
         {
-            var service = await _context.Services.FindAsync(id);
-            if (service == null)
-                return false;
-
-            _context.Services.Remove(service);
-            await _context.SaveChangesAsync();
-            return true;
+            var result = await _context.Services.DeleteOneAsync(s => s.Id == id);
+            return result.DeletedCount > 0;
         }
     }
 }

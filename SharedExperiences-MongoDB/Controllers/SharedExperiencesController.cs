@@ -27,7 +27,7 @@ public class SharedExperiencesController :  ControllerBase
 
     // GET: api/SharedExperiences/5
     [HttpGet("{id}")]
-    public async Task<ActionResult<Provider>> GetProvider(int id)
+    public async Task<ActionResult<Provider>> GetProvider(string id)
     {
         var provider = await _sharedExperiencesService.GetProviderByIdAsync(id);
 
@@ -49,14 +49,14 @@ public class SharedExperiencesController :  ControllerBase
         }
 
         var createdProvider = await _sharedExperiencesService.CreateProviderAsync(provider);
-        return CreatedAtAction(nameof(GetProvider), new { id = createdProvider.ProviderId }, createdProvider);
+        return CreatedAtAction(nameof(GetProvider), new { id = createdProvider.Id }, createdProvider);
     }
 
     // PUT: api/SharedExperiences/5
     [HttpPut("{id}")]
-    public async Task<IActionResult> UpdateProvider(int id, [FromBody] Provider provider)
+    public async Task<IActionResult> UpdateProvider(string id, [FromBody] Provider provider)
     {
-        if (id != provider.ProviderId)
+        if (id != provider.Id)
         {
             return BadRequest();
         }
@@ -72,7 +72,7 @@ public class SharedExperiencesController :  ControllerBase
 
     // DELETE: api/SharedExperiences/5
     [HttpDelete("{id}")]
-    public async Task<IActionResult> DeleteProvider(int id)
+    public async Task<IActionResult> DeleteProvider(string id)
     {
         var deleted = await _sharedExperiencesService.DeleteProviderAsync(id);
         if (!deleted)
@@ -105,23 +105,23 @@ public class SharedExperiencesController :  ControllerBase
     }
 
     [HttpGet("Table4")]
-    public async Task<ActionResult<IEnumerable<object>>> Table4(int sharedExperienceId)
+    public async Task<ActionResult<IEnumerable<object>>> Table4(string sharedExperienceId)
     {
         var providers = await _sharedExperiencesService.Table4(sharedExperienceId);
         return Ok(providers);
     }   
 
     [HttpGet("Table5")]
-    public async Task<ActionResult<IEnumerable<object>>> Table5(int sharedExperienceId)
+    public async Task<ActionResult<IEnumerable<object>>> Table5(string sharedExperienceId)
     {
         var providers = await _sharedExperiencesService.Table5(sharedExperienceId);
         return Ok(providers);
     }
 
     [HttpGet("Table6")]
-    public async Task<ActionResult<IEnumerable<object>>> Table6( int serviceId )
+    public async Task<ActionResult<IEnumerable<object>>> Table6(string serviceId)
     {
-        var providers = await _sharedExperiencesService.Table6( serviceId);
+        var providers = await _sharedExperiencesService.Table6(serviceId);
         return Ok(providers);
     }
 

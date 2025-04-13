@@ -25,7 +25,7 @@ namespace ExperienceService.Controllers
 
         // GET: api/Providers/5
         [HttpGet("{id}")]
-        public async Task<ActionResult<Provider>> GetProvider(int id)
+        public async Task<ActionResult<Provider>> GetProvider(string id)
         {
             var provider = await _providerService.GetProviderByIdAsync(id);
 
@@ -39,7 +39,7 @@ namespace ExperienceService.Controllers
 
         // GET: api/Providers/5/Services
         [HttpGet("{id}/Services")]
-        public async Task<ActionResult<IEnumerable<Service>>> GetProviderServices(int id)
+        public async Task<ActionResult<IEnumerable<Service>>> GetProviderServices(string id)
         {
             var services = await _providerService.GetProviderServicesAsync(id);
             return Ok(services);
@@ -55,14 +55,14 @@ namespace ExperienceService.Controllers
             }
 
             var createdProvider = await _providerService.CreateProviderAsync(provider);
-            return CreatedAtAction(nameof(GetProvider), new { id = createdProvider.ProviderId }, createdProvider);
+            return CreatedAtAction(nameof(GetProvider), new { id = createdProvider.Id }, createdProvider);
         }
 
         // PUT: api/Providers/5
         [HttpPut("{id}")]
-        public async Task<IActionResult> UpdateProvider(int id, [FromBody] Provider provider)
+        public async Task<IActionResult> UpdateProvider(string id, [FromBody] Provider provider)
         {
-            if (id != provider.ProviderId)
+            if (id != provider.Id)
             {
                 return BadRequest();
             }
@@ -83,7 +83,7 @@ namespace ExperienceService.Controllers
 
         // DELETE: api/Providers/5
         [HttpDelete("{id}")]
-        public async Task<IActionResult> DeleteProvider(int id)
+        public async Task<IActionResult> DeleteProvider(string id)
         {
             var result = await _providerService.DeleteProviderAsync(id);
             if (!result)
