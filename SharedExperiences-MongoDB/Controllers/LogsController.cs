@@ -3,6 +3,8 @@ using Microsoft.AspNetCore.Mvc;
 using SharedExperiences.DTO;
 using SharedExperiences.Models;
 using SharedExperiences.Services;
+using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 
 namespace SharedExperiences.Controllers
@@ -27,6 +29,12 @@ namespace SharedExperiences.Controllers
         [HttpGet("search")]
         public async Task<ActionResult<PaginatedResponse<LogEntry>>> SearchLogs([FromQuery] LogSearchQuery query)
         {
+            // Add description filter if provided
+            if (!string.IsNullOrEmpty(query.Description))
+            {
+                query.Description = query.Description.Trim();
+            }
+            
             // Validate HTTP method if provided
             if (!string.IsNullOrEmpty(query.Method))
             {
@@ -58,14 +66,13 @@ namespace SharedExperiences.Controllers
         }
 
         /// <summary>
-        /// Get a summary of log counts by HTTP method
+        /// Get a summary of log operations grouped by description
         /// </summary>
-        [HttpGet("summary")]
-        public ActionResult GetLogSummary()
+        [HttpGet("operations")]
+        public async Task<ActionResult> GetOperationTypes()
         {
-            // This could be implemented to provide statistics on logs
-            // For now, we'll return a simple message
-            return Ok(new { message = "Log summary endpoint - to be implemented" });
+            var operations = await _logService.GetOperationTypesAsync();
+            return Ok(operations);
         }
     }
 } 

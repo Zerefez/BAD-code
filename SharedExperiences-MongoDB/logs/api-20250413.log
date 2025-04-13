@@ -1,0 +1,18 @@
+2025-04-13 18:19:41.943 +02:00 [WRN] Failed to determine the https port for redirect.
+2025-04-13 18:19:42.202 +02:00 [INF] Request: POST /api/Auth/login
+2025-04-13 18:41:37.341 +02:00 [WRN] Failed to determine the https port for redirect.
+2025-04-13 18:41:37.544 +02:00 [INF] Request: POST /api/Auth/register
+2025-04-13 18:41:38.439 +02:00 [INF] Request: POST /api/Auth/register
+2025-04-13 18:42:21.177 +02:00 [INF] Request: POST /api/Auth/register
+2025-04-13 18:47:51.111 +02:00 [WRN] Failed to determine the https port for redirect.
+2025-04-13 18:47:51.321 +02:00 [INF] Request: POST /api/Auth/login
+2025-04-13 18:48:08.249 +02:00 [INF] Request: PUT /api/Auth/roles
+2025-04-13 18:48:09.645 +02:00 [INF] Request: PUT /api/Auth/roles
+2025-04-13 18:49:16.244 +02:00 [INF] Request: PUT /api/Auth/roles
+2025-04-13 18:52:18.857 +02:00 [INF] Request: PUT /api/Auth/roles
+2025-04-13 18:55:58.125 +02:00 [WRN] Failed to determine the https port for redirect.
+2025-04-13 18:57:52.470 +02:00 [WRN] Failed to determine the https port for redirect.
+2025-04-13 19:02:52.127 +02:00 [WRN] Failed to determine the https port for redirect.
+2025-04-13 19:02:52.352 +02:00 [INF] Request: POST /api/Auth/login
+2025-04-13 19:03:32.193 +02:00 [INF] Request: PUT /api/Auth/roles
+2025-04-13 19:05:30.447 +02:00 [INF] Request: PUT /api/Auth/roles

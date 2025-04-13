@@ -27,6 +27,27 @@ namespace SharedExperiences.Models
         
         [BsonElement("Exception")]
         public string? Exception { get; set; }
+        
+        // Helper property to extract action description from rendered message or properties
+        [BsonIgnore]
+        public string ActionDescription => ExtractActionDescription();
+        
+        private string ExtractActionDescription()
+        {
+            // Try to extract description from RenderedMessage (e.g., "HTTP POST /api/users - Creating new user")
+            if (!string.IsNullOrEmpty(RenderedMessage))
+            {
+                // Check if there's a dash followed by description
+                int dashIndex = RenderedMessage.IndexOf(" - ");
+                if (dashIndex > 0 && dashIndex < RenderedMessage.Length - 3)
+                {
+                    return RenderedMessage.Substring(dashIndex + 3).Trim();
+                }
+            }
+            
+            // Fall back to basic method + path format
+            return $"{Properties?.RequestMethod ?? "Unknown"} {Properties?.RequestPath ?? "Unknown"}";
+        }
     }
     
     public class LogProperties
@@ -54,6 +75,9 @@ namespace SharedExperiences.Models
         
         [BsonElement("ActionName")]
         public string? ActionName { get; set; }
+        
+        [BsonElement("Description")]
+        public string? Description { get; set; }
         
         [BsonElement("RequestId")]
         public string? RequestId { get; set; }

@@ -28,11 +28,15 @@ namespace SharedExperiences.Middleware
             {
                 try
                 {
+                    // Get the operation description based on the endpoint and method
+                    string description = GenerateOperationDescription(context.Request.Method, context.Request.Path);
+                    
                     // Log with a 500ms timeout
                     var logTask = Task.Run(() => {
-                        _logger.Information("Request: {Method} {Path}", 
+                        _logger.Information("Request: {Method} {Path} - {Description}", 
                             context.Request.Method, 
-                            context.Request.Path);
+                            context.Request.Path,
+                            description);
                     });
                     
                     // Wait for logging with timeout to avoid freezing
@@ -58,6 +62,70 @@ namespace SharedExperiences.Middleware
             
             // Wait for the next middleware to complete
             await nextTask;
+        }
+        
+        private string GenerateOperationDescription(string method, PathString path)
+        {
+            string pathValue = path.Value?.ToLower() ?? string.Empty;
+            
+            // Common patterns
+            if (pathValue.Contains("/api/auth/login"))
+                return "User login";
+                
+            if (pathValue.Contains("/api/auth/register"))
+                return "User registration";
+            
+            // Service-related operations
+            if (pathValue.Contains("/api/service"))
+            {
+                if (method.Equals("POST", StringComparison.OrdinalIgnoreCase))
+                    return "Creating new service";
+                    
+                if (method.Equals("PUT", StringComparison.OrdinalIgnoreCase))
+                    return "Updating existing service";
+                    
+                if (method.Equals("DELETE", StringComparison.OrdinalIgnoreCase))
+                    return "Deleting service";
+            }
+            
+            // Provider-related operations
+            if (pathValue.Contains("/api/provider"))
+            {
+                if (method.Equals("POST", StringComparison.OrdinalIgnoreCase))
+                    return "Creating new provider";
+                    
+                if (method.Equals("PUT", StringComparison.OrdinalIgnoreCase))
+                    return "Updating provider information";
+                    
+                if (method.Equals("DELETE", StringComparison.OrdinalIgnoreCase))
+                    return "Deleting provider";
+            }
+            
+            // Shared experiences-related operations
+            if (pathValue.Contains("/api/sharedexperiences"))
+            {
+                if (method.Equals("POST", StringComparison.OrdinalIgnoreCase))
+                    return "Creating new shared experience";
+                    
+                if (method.Equals("PUT", StringComparison.OrdinalIgnoreCase))
+                    return "Updating shared experience";
+                    
+                if (method.Equals("DELETE", StringComparison.OrdinalIgnoreCase))
+                    return "Deleting shared experience";
+            }
+            
+            // Default descriptions based on method
+            switch (method.ToUpper())
+            {
+                case "POST":
+                    return "Creating new resource";
+                case "PUT":
+                    return "Updating existing resource";
+                case "DELETE":
+                    return "Deleting resource";
+                default:
+                    return "Performing operation";
+            }
         }
         
         private void LogWarning(string message)

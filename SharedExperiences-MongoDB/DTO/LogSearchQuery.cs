@@ -25,6 +25,11 @@ namespace SharedExperiences.DTO
         public string? Method { get; set; }
         
         /// <summary>
+        /// Filter logs by operation description (e.g., "Creating new service")
+        /// </summary>
+        public string? Description { get; set; }
+        
+        /// <summary>
         /// Page number (1-based)
         /// </summary>
         public int Page { get; set; } = 1;

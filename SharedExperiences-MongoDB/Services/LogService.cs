@@ -51,6 +51,21 @@ namespace SharedExperiences.Services
             {
                 filters.Add(filterBuilder.Eq("Properties.RequestMethod", query.Method.ToUpper()));
             }
+            
+            // Filter by description
+            if (!string.IsNullOrEmpty(query.Description))
+            {
+                // First try to match Properties.Description
+                var descriptionFilter = filterBuilder.Regex("Properties.Description", 
+                    new MongoDB.Bson.BsonRegularExpression(query.Description, "i"));
+                
+                // Also try to match in RenderedMessage which might contain the description after a dash
+                var messageFilter = filterBuilder.Regex("RenderedMessage", 
+                    new MongoDB.Bson.BsonRegularExpression(" - .*" + query.Description, "i"));
+                
+                // Combine with OR since description could be in either field
+                filters.Add(filterBuilder.Or(descriptionFilter, messageFilter));
+            }
 
             // Combine filters
             var combinedFilter = filters.Count > 0 
@@ -73,5 +88,35 @@ namespace SharedExperiences.Services
 
             return (logs, totalCount);
         }
+        
+        public async Task<List<OperationTypeCount>> GetOperationTypesAsync()
+        {
+            // Only include logs from POST, PUT, DELETE operations
+            var filter = Builders<LogEntry>.Filter.In("Properties.RequestMethod", 
+                new[] { "POST", "PUT", "DELETE" });
+                
+            // Get all logs matching the filter
+            var logs = await _logs.Find(filter)
+                .Sort(Builders<LogEntry>.Sort.Descending(log => log.Timestamp))
+                .Limit(1000) // Limit to a reasonable number for analysis
+                .ToListAsync();
+                
+            // Extract operation descriptions and count occurrences
+            return logs
+                .Select(log => log.ActionDescription)
+                .GroupBy(desc => desc)
+                .Select(group => new OperationTypeCount { 
+                    Description = group.Key, 
+                    Count = group.Count() 
+                })
+                .OrderByDescending(item => item.Count)
+                .ToList();
+        }
+    }
+    
+    public class OperationTypeCount
+    {
+        public string Description { get; set; } = null!;
+        public int Count { get; set; }
     }
 } 
