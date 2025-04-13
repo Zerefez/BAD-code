@@ -1,0 +1,52 @@
+version: '3.8'
+
+services:
+  api:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "8080:80"
+      - "8443:443"
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Production
+      - ConnectionStrings__DefaultConnection=Data Source=sqlserver;Database=SharedExperincesDB;User Id=sa;Password=Zerefez7253!;TrustServerCertificate=True
+      - ConnectionStrings__MongoDB=mongodb://mongodb:27017
+      - Serilog__WriteTo__2__Args__databaseUrl=mongodb://mongodb:27017/SharedExperiencesLogs
+    depends_on:
+      - sqlserver
+      - mongodb
+    networks:
+      - shared-experiences-network
+
+  sqlserver:
+    image: mcr.microsoft.com/mssql/server:2022-latest
+    environment:
+      - ACCEPT_EULA=Y
+      - SA_PASSWORD=Zerefez7253!
+      - MSSQL_PID=Express
+    ports:
+      - "1433:1433"
+    volumes:
+      - sqlserver-data:/var/opt/mssql
+    networks:
+      - shared-experiences-network
+
+  mongodb:
+    image: mongo:latest
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongodb-data:/data/db
+      - mongodb-config:/data/configdb
+    networks:
+      - shared-experiences-network
+
+networks:
+  shared-experiences-network:
+    driver: bridge
+
+volumes:
+  sqlserver-data:
+  mongodb-data:
+  mongodb-config: 
