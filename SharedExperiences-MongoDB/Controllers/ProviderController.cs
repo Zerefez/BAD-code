@@ -1,5 +1,6 @@
 using ExperienceService.Models;
 using ExperienceService.Services;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using SharedExperiences.DTO;
 
@@ -7,6 +8,7 @@ namespace ExperienceService.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
+    [Authorize(Roles = "Admin,Manager")]
     public class ProvidersController : ControllerBase
     {
         private readonly ProviderService _providerService;

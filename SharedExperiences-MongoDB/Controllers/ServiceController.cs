@@ -1,5 +1,6 @@
 using ExperienceService.Models;
 using ExperienceService.Services;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using SharedExperiences.DTO;
 
@@ -18,6 +19,7 @@ namespace ExperienceService.Controllers
 
         // GET: api/Services
         [HttpGet]
+        [AllowAnonymous]
         public async Task<ActionResult<IEnumerable<Service>>> GetServices()
         {
             var services = await _serviceService.GetAllServicesAsync();
@@ -26,6 +28,7 @@ namespace ExperienceService.Controllers
 
         // GET: api/Services/5
         [HttpGet("{id}")]
+        [AllowAnonymous]
         public async Task<ActionResult<Service>> GetService(string id)
         {
             var service = await _serviceService.GetServiceByIdAsync(id);
@@ -40,6 +43,7 @@ namespace ExperienceService.Controllers
 
         // POST: api/Services
         [HttpPost]
+        [Authorize(Roles = "Admin,Manager")]
         public async Task<ActionResult<Service>> CreateService([FromBody] CreateAndUpdateServiceDto serviceDto)
         {
             if (!ModelState.IsValid)
@@ -62,6 +66,7 @@ namespace ExperienceService.Controllers
 
         // PUT: api/Services/5
         [HttpPut("{id}")]
+        [Authorize(Roles = "Admin,Manager")]
         public async Task<IActionResult> UpdateService(string id, [FromBody] CreateAndUpdateServiceDto serviceDto)
         {
             if (!ModelState.IsValid)
@@ -94,6 +99,7 @@ namespace ExperienceService.Controllers
 
         // DELETE: api/Services/5
         [HttpDelete("{id}")]
+        [Authorize(Roles = "Admin,Manager")]
         public async Task<IActionResult> DeleteService(string id)
         {
             var result = await _serviceService.DeleteServiceAsync(id);

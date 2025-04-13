@@ -3,6 +3,7 @@ using MongoDB.Driver;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Security.Cryptography;
 
 namespace ExperienceService.Data
 {
@@ -17,6 +18,18 @@ namespace ExperienceService.Data
 
         public void Seed()
         {
+            // First seed roles
+            if (!_context.Roles.Find(_ => true).Any())
+            {
+                SeedRoles();
+            }
+
+            // Then seed users
+            if (!_context.Users.Find(_ => true).Any())
+            {
+                SeedUsers();
+            }
+
             if (!_context.Providers.Find(_ => true).Any())
             {
                 SeedProviders();
@@ -45,6 +58,77 @@ namespace ExperienceService.Data
             if (!_context.Billings.Find(_ => true).Any())
             {
                 SeedBillings();
+            }
+        }
+
+        private void SeedRoles()
+        {
+            var roles = new List<Role>();
+            
+            foreach (var roleName in UserRoles.AllRoles)
+            {
+                roles.Add(new Role { Name = roleName });
+            }
+            
+            _context.Roles.InsertMany(roles);
+        }
+
+        private void SeedUsers()
+        {
+            // Create one user for each role
+            var users = new List<ApplicationUser>
+            {
+                new ApplicationUser 
+                { 
+                    Username = "admin", 
+                    Email = "admin@system.com", 
+                    PasswordHash = HashPassword("Admin123!"),
+                    Roles = new List<string> { UserRoles.Admin }
+                },
+                new ApplicationUser 
+                { 
+                    Username = "manager", 
+                    Email = "manager@system.com", 
+                    PasswordHash = HashPassword("Manager123!"),
+                    Roles = new List<string> { UserRoles.Manager }
+                },
+                new ApplicationUser 
+                { 
+                    Username = "provider", 
+                    Email = "provider@system.com", 
+                    PasswordHash = HashPassword("Provider123!"),
+                    Roles = new List<string> { UserRoles.Provider }
+                },
+                new ApplicationUser 
+                { 
+                    Username = "guest", 
+                    Email = "guest@system.com", 
+                    PasswordHash = HashPassword("Guest123!"),
+                    Roles = new List<string> { UserRoles.Guest }
+                }
+            };
+            
+            _context.Users.InsertMany(users);
+        }
+
+        private string HashPassword(string password)
+        {
+            // Generate a random salt
+            byte[] salt = new byte[16];
+            using (var rng = RandomNumberGenerator.Create())
+            {
+                rng.GetBytes(salt);
+            }
+
+            // Create the PBKDF2 hash
+            using (var pbkdf2 = new Rfc2898DeriveBytes(password, salt, 10000, HashAlgorithmName.SHA256))
+            {
+                byte[] hash = pbkdf2.GetBytes(32);
+                byte[] hashBytes = new byte[48]; // 16 bytes for salt, 32 bytes for hash
+                Array.Copy(salt, 0, hashBytes, 0, 16);
+                Array.Copy(hash, 0, hashBytes, 16, 32);
+                
+                return Convert.ToBase64String(hashBytes);
             }
         }
 

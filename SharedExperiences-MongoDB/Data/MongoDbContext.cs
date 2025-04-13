@@ -40,6 +40,8 @@ namespace ExperienceService.Data
         public IMongoCollection<Guest> Guests => _database.GetCollection<Guest>("Guests");
         public IMongoCollection<Discount> Discounts => _database.GetCollection<Discount>("Discounts");
         public IMongoCollection<Billing> Billings => _database.GetCollection<Billing>("Billings");
+        public IMongoCollection<ApplicationUser> Users => _database.GetCollection<ApplicationUser>("Users");
+        public IMongoCollection<Role> Roles => _database.GetCollection<Role>("Roles");
 
         private void CreateCollectionsIfNotExist()
         {
@@ -62,6 +64,12 @@ namespace ExperienceService.Data
                 
             if (!collections.Contains("Billings"))
                 _database.CreateCollection("Billings");
+                
+            if (!collections.Contains("Users"))
+                _database.CreateCollection("Users");
+                
+            if (!collections.Contains("Roles"))
+                _database.CreateCollection("Roles");
         }
     }
 } 
