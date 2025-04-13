@@ -68,6 +68,8 @@ namespace ExperienceService.Services
                 registerDto.Role = UserRoles.Guest; // Default to Guest if invalid role
             }
 
+            // Note: Password validation is handled by data annotations in RegisterDto
+            
             var user = new ApplicationUser
             {
                 Username = registerDto.Username,
@@ -169,6 +171,35 @@ namespace ExperienceService.Services
             var token = tokenHandler.CreateToken(tokenDescriptor);
 
             return tokenHandler.WriteToken(token);
+        }
+
+        public async Task<bool> UpdateUserRoleAsync(UpdateRoleDto updateRoleDto)
+        {
+            // Validate that the role exists
+            if (!UserRoles.AllRoles.Contains(updateRoleDto.NewRole))
+            {
+                return false;
+            }
+            
+            // Find the user
+            var user = await _context.Users
+                .Find(u => u.Username == updateRoleDto.Username)
+                .FirstOrDefaultAsync();
+                
+            if (user == null)
+            {
+                return false;
+            }
+            
+            // Update the user's role
+            user.Roles = new List<string> { updateRoleDto.NewRole };
+            
+            // Update in database
+            var updateResult = await _context.Users.ReplaceOneAsync(
+                u => u.Username == updateRoleDto.Username,
+                user);
+                
+            return updateResult.IsAcknowledged && updateResult.ModifiedCount > 0;
         }
     }
 } 

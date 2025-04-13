@@ -4,7 +4,7 @@ namespace ExperienceService.Models.Validators
 {
     public class PositivePriceAttribute : ValidationAttribute
     {
-        protected override ValidationResult IsValid(object value, ValidationContext validationContext)
+        protected override ValidationResult? IsValid(object? value, ValidationContext validationContext)
         {
             if (value is decimal price)
             {
