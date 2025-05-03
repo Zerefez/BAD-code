@@ -1,6 +1,7 @@
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization.Attributes;
 using System;
+using System.Collections.Generic;
 
 namespace SharedExperiences.Models
 {
@@ -28,6 +29,10 @@ namespace SharedExperiences.Models
         [BsonElement("Exception")]
         public string? Exception { get; set; }
         
+        // Store any extra fields MongoDB might have that aren't mapped
+        [BsonExtraElements]
+        public Dictionary<string, object> ExtraElements { get; set; } = new Dictionary<string, object>();
+        
         // Helper property to extract action description from rendered message or properties
         [BsonIgnore]
         public string ActionDescription => ExtractActionDescription();
@@ -46,7 +51,11 @@ namespace SharedExperiences.Models
             }
             
             // Fall back to basic method + path format
-            return $"{Properties?.RequestMethod ?? "Unknown"} {Properties?.RequestPath ?? "Unknown"}";
+            string method = Properties?.RequestMethod;
+            if (string.IsNullOrEmpty(method))
+                method = Properties?.Method;
+                
+            return $"{method ?? "Unknown"} {Properties?.RequestPath ?? "Unknown"}";
         }
     }
     
@@ -54,6 +63,9 @@ namespace SharedExperiences.Models
     {
         [BsonElement("RequestMethod")]
         public string? RequestMethod { get; set; }
+        
+        [BsonElement("Method")]
+        public string? Method { get; set; }
         
         [BsonElement("RequestPath")]
         public string? RequestPath { get; set; }
@@ -90,5 +102,9 @@ namespace SharedExperiences.Models
         
         [BsonElement("ThreadId")]
         public string? ThreadId { get; set; }
+        
+        // Store any extra fields MongoDB might have that aren't explicitly mapped
+        [BsonExtraElements]
+        public Dictionary<string, object> ExtraElements { get; set; } = new Dictionary<string, object>();
     }
 } 

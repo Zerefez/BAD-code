@@ -1,0 +1,17 @@
+2025-05-03 10:23:50.022 +02:00 [WRN] Failed to determine the https port for redirect.
+2025-05-03 10:24:36.425 +02:00 [INF] Request: POST /api/Auth/login - User login
+2025-05-03 10:34:59.195 +02:00 [INF] Request: POST /api/Auth/login - User login
+2025-05-03 10:50:57.207 +02:00 [WRN] Failed to determine the https port for redirect.
+2025-05-03 10:50:57.436 +02:00 [INF] Request: POST /api/Auth/login - User login
+2025-05-03 10:54:05.299 +02:00 [WRN] Failed to determine the https port for redirect.
+2025-05-03 10:54:05.511 +02:00 [INF] Request: POST /api/Auth/login - User login
+2025-05-03 11:00:11.049 +02:00 [WRN] Failed to determine the https port for redirect.
+2025-05-03 11:00:11.275 +02:00 [INF] Request: POST /api/Auth/login - User login
+2025-05-03 11:01:01.214 +02:00 [INF] Request: POST /api/Providers - Creating new provider
+2025-05-03 11:02:49.038 +02:00 [INF] Request: GET /api/Logs/search - Log access
+2025-05-03 11:03:03.200 +02:00 [INF] Request: GET /api/Logs/search - Log access
+2025-05-03 11:03:10.843 +02:00 [INF] Request: GET /api/Logs/search - Log access
+2025-05-03 11:05:21.634 +02:00 [WRN] Failed to determine the https port for redirect. [User:{Properties.UserId}] [Role:{Properties.UserRole}]
+2025-05-03 11:05:21.858 +02:00 [INF] Request: POST /api/Auth/login - User login by user anonymous with role none [User:{Properties.UserId}] [Role:{Properties.UserRole}]
+2025-05-03 11:05:53.659 +02:00 [INF] Request: DELETE /api/Providers/6815db4de83ae5db61f60f0d - Deleting provider by user admin with role Admin [User:{Properties.UserId}] [Role:{Properties.UserRole}]
+2025-05-03 11:06:00.909 +02:00 [INF] Request: DELETE /api/Providers/6815db4de83ae5db61f60f0d - Deleting provider by user admin with role Admin [User:{Properties.UserId}] [Role:{Properties.UserRole}]

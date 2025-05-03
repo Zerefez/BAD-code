@@ -2,6 +2,8 @@ using Microsoft.AspNetCore.Http;
 using Serilog;
 using System;
 using System.Threading.Tasks;
+using System.Security.Claims;
+using System.Linq;
 
 namespace SharedExperiences.Middleware
 {
@@ -23,20 +25,50 @@ namespace SharedExperiences.Middleware
             // Always call next middleware first to avoid blocking the pipeline
             var nextTask = _next(context);
             
-            // Only attempt to log if logging is enabled and it's a POST, PUT, DELETE request
-            if (_loggingEnabled && IsMethodToLog(context.Request.Method))
+            // Log both write operations (POST/PUT/DELETE) and sensitive GET operations
+            if (_loggingEnabled && (IsMethodToLog(context.Request.Method) || IsPathToLog(context.Request.Path, context.Request.Method)))
             {
                 try
                 {
                     // Get the operation description based on the endpoint and method
                     string description = GenerateOperationDescription(context.Request.Method, context.Request.Path);
                     
+                    // Extract user ID and role if authenticated
+                    string userId = "anonymous";
+                    string userRole = "none";
+                    string userEmail = "unknown";
+                    
+                    if (context.User?.Identity?.IsAuthenticated == true)
+                    {
+                        // Get username from claims
+                        userId = context.User.Claims
+                            .FirstOrDefault(c => c.Type == ClaimTypes.Name)?.Value ?? "anonymous";
+                            
+                        // Get role information
+                        userRole = context.User.Claims
+                            .FirstOrDefault(c => c.Type == ClaimTypes.Role)?.Value ?? "none";
+                            
+                        // Get email if available
+                        userEmail = context.User.Claims
+                            .FirstOrDefault(c => c.Type == ClaimTypes.Email)?.Value ?? "unknown";
+                    }
+                    
                     // Log with a 500ms timeout
                     var logTask = Task.Run(() => {
-                        _logger.Information("Request: {Method} {Path} - {Description}", 
-                            context.Request.Method, 
-                            context.Request.Path,
-                            description);
+                        // Create log with user details for filtering
+                        _logger
+                            .ForContext("UserId", userId)
+                            .ForContext("UserRole", userRole)
+                            .ForContext("UserEmail", userEmail)
+                            .ForContext("RequestId", context.TraceIdentifier)
+                            .ForContext("RequestPath", context.Request.Path)
+                            .ForContext("Method", context.Request.Method)
+                            .Information("Request: {Method} {Path} - {Description} by user {UserId} with role {UserRole}", 
+                                context.Request.Method, 
+                                context.Request.Path,
+                                description,
+                                userId,
+                                userRole);
                     });
                     
                     // Wait for logging with timeout to avoid freezing
@@ -68,13 +100,20 @@ namespace SharedExperiences.Middleware
         {
             string pathValue = path.Value?.ToLower() ?? string.Empty;
             
-            // Common patterns
+            // Auth operations
             if (pathValue.Contains("/api/auth/login"))
                 return "User login";
                 
             if (pathValue.Contains("/api/auth/register"))
                 return "User registration";
-            
+                
+            if (pathValue.Contains("/api/auth/roles"))
+                return "Role management";
+                
+            // Log operations
+            if (pathValue.Contains("/api/logs"))
+                return "Log access";
+                
             // Service-related operations
             if (pathValue.Contains("/api/service"))
             {
@@ -86,6 +125,9 @@ namespace SharedExperiences.Middleware
                     
                 if (method.Equals("DELETE", StringComparison.OrdinalIgnoreCase))
                     return "Deleting service";
+                    
+                if (method.Equals("GET", StringComparison.OrdinalIgnoreCase))
+                    return "Viewing service details";
             }
             
             // Provider-related operations
@@ -99,6 +141,9 @@ namespace SharedExperiences.Middleware
                     
                 if (method.Equals("DELETE", StringComparison.OrdinalIgnoreCase))
                     return "Deleting provider";
+                    
+                if (method.Equals("GET", StringComparison.OrdinalIgnoreCase))
+                    return "Viewing provider details";
             }
             
             // Shared experiences-related operations
@@ -112,6 +157,9 @@ namespace SharedExperiences.Middleware
                     
                 if (method.Equals("DELETE", StringComparison.OrdinalIgnoreCase))
                     return "Deleting shared experience";
+                    
+                if (method.Equals("GET", StringComparison.OrdinalIgnoreCase))
+                    return "Viewing shared experience";
             }
             
             // Default descriptions based on method
@@ -123,6 +171,8 @@ namespace SharedExperiences.Middleware
                     return "Updating existing resource";
                 case "DELETE":
                     return "Deleting resource";
+                case "GET":
+                    return "Accessing resource";
                 default:
                     return "Performing operation";
             }
@@ -140,9 +190,25 @@ namespace SharedExperiences.Middleware
         
         private bool IsMethodToLog(string method)
         {
+            // Always log write operations
             return method.Equals("POST", StringComparison.OrdinalIgnoreCase) || 
                    method.Equals("PUT", StringComparison.OrdinalIgnoreCase) || 
                    method.Equals("DELETE", StringComparison.OrdinalIgnoreCase);
+        }
+        
+        private bool IsPathToLog(PathString path, string method)
+        {
+            // Only log GET requests to sensitive endpoints
+            if (!method.Equals("GET", StringComparison.OrdinalIgnoreCase))
+                return false;
+                
+            string pathValue = path.Value?.ToLower() ?? string.Empty;
+            
+            // Log access to sensitive data
+            return pathValue.Contains("/api/logs") ||
+                   pathValue.Contains("/api/users") ||
+                   pathValue.Contains("/api/admin") ||
+                   pathValue.Contains("/api/auth/roles");
         }
     }
     

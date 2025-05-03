@@ -74,5 +74,15 @@ namespace SharedExperiences.Controllers
             var operations = await _logService.GetOperationTypesAsync();
             return Ok(operations);
         }
+        
+        /// <summary>
+        /// Get diagnostic information about the logging system
+        /// </summary>
+        [HttpGet("diagnostic")]
+        public async Task<ActionResult> GetDiagnosticInfo()
+        {
+            var info = await _logService.GetDiagnosticInfoAsync();
+            return Ok(info);
+        }
     }
 } 
