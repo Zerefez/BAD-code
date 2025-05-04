@@ -9,9 +9,8 @@ This repository contains Docker configurations for running the Shared Experience
 
 ## Getting Started
 
-1. Clone this repository
-2. Navigate to the repository folder in your terminal
-3. Run the following command to build and start all containers:
+1. Navigate to the SharedExperiences-MSSQL directory
+2. Run the following command to build and start all containers:
 
 ```bash
 docker-compose up -d
@@ -60,11 +59,4 @@ docker-compose down -v
 
 ## Logs
 
-API logs are stored in the ./logs directory, which is mounted to the API container.
-
-## Changes Made for Production
-
-- Modified Program.cs to enable Swagger in all environments (including Production)
-- Updated docker-compose.yml to run in Production mode with proper JWT settings
-- Added healthcheck to the Dockerfile
-- Created a logs directory in the container
+API logs are stored in the ./logs directory, which is mounted to the API container. 

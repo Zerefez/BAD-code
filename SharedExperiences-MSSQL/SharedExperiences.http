@@ -1,5 +1,91 @@
 @SharedExperiences_HostAddress = http://localhost:5195
 
+### Register a new user (Guest role)
+POST {{SharedExperiences_HostAddress}}/api/Auth/register
+Content-Type: application/json
+
+{
+  "email": "guest@example.com",
+  "password": "Password123!",
+  "confirmPassword": "Password123!",
+  "firstName": "John",
+  "lastName": "Doe",
+  "phoneNumber": "1234567890"
+}
+
+### Login as Admin
+POST {{SharedExperiences_HostAddress}}/api/Auth/login
+Content-Type: application/json
+
+{
+  "email": "admin@example.com",
+  "password": "Admin123!"
+}
+
+### Login as Manager
+POST {{SharedExperiences_HostAddress}}/api/Auth/login
+Content-Type: application/json
+
+{
+  "email": "manager@example.com",
+  "password": "Manager123!"
+}
+
+### Login as Provider
+POST {{SharedExperiences_HostAddress}}/api/Auth/login
+Content-Type: application/json
+
+{
+  "email": "provider@example.com",
+  "password": "Provider123!"
+}
+
+### Login as Guest
+POST {{SharedExperiences_HostAddress}}/api/Auth/login
+Content-Type: application/json
+
+{
+  "email": "guest@example.com",
+  "password": "Guest123!"
+}
+
+### Test Anonymous Access - Query 2 (Should work for anonymous)
+GET {{SharedExperiences_HostAddress}}/api/SharedExperiences/Table2
+
+### Test Anonymous Access - Query 3 (Should work for anonymous)
+GET {{SharedExperiences_HostAddress}}/api/SharedExperiences/Table3
+
+### Test Anonymous Access - Query 5 (Should work for anonymous)
+GET {{SharedExperiences_HostAddress}}/api/SharedExperiences/Table5?sharedExperienceId=1
+
+### Test Manager Access - Query 1 (Requires Manager or Admin role)
+GET {{SharedExperiences_HostAddress}}/api/SharedExperiences/Table1
+Authorization: Bearer YOUR_MANAGER_TOKEN_HERE
+
+### Test Manager Access - Query 4 (Requires Manager or Admin role)
+GET {{SharedExperiences_HostAddress}}/api/SharedExperiences/Table4?sharedExperienceId=1
+Authorization: Bearer YOUR_MANAGER_TOKEN_HERE
+
+### Test Manager Access - Query 6 (Requires Manager or Admin role)
+GET {{SharedExperiences_HostAddress}}/api/SharedExperiences/Table6?serviceId=1
+Authorization: Bearer YOUR_MANAGER_TOKEN_HERE
+
+### Test Admin Access - Query 1 (Should work with Admin role)
+GET {{SharedExperiences_HostAddress}}/api/SharedExperiences/Table1
+Authorization: Bearer YOUR_ADMIN_TOKEN_HERE
+
+### Test Admin Access - Can access all endpoints
+GET {{SharedExperiences_HostAddress}}/api/SharedExperiences/Table9
+Authorization: Bearer YOUR_ADMIN_TOKEN_HERE
+
+### Test Provider Access - Get services (Should work with Provider role)
+GET {{SharedExperiences_HostAddress}}/api/Services
+Authorization: Bearer YOUR_PROVIDER_TOKEN_HERE
+
+### Test Guest Access - Non-anonymous endpoint (Should be authorized)
+GET {{SharedExperiences_HostAddress}}/api/SharedExperiences/Table9
+Authorization: Bearer YOUR_GUEST_TOKEN_HERE
+
 GET {{SharedExperiences_HostAddress}}/weatherforecast/
 Accept: application/json
 

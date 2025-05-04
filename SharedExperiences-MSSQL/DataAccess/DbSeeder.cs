@@ -1,23 +1,147 @@
 using ExperienceService.Models;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.Extensions.Configuration;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 
 namespace ExperienceService.Data
 {
     public class DbSeeder
     {
         private readonly SharedExperiencesDbContext _context;
+        private readonly UserManager<ApplicationUser> _userManager;
+        private readonly RoleManager<IdentityRole> _roleManager;
+        private readonly IConfiguration _configuration;
 
-        public DbSeeder(SharedExperiencesDbContext context)
+        public DbSeeder(
+            SharedExperiencesDbContext context,
+            UserManager<ApplicationUser> userManager,
+            RoleManager<IdentityRole> roleManager,
+            IConfiguration configuration)
         {
             _context = context;
+            _userManager = userManager;
+            _roleManager = roleManager;
+            _configuration = configuration;
         }
 
-        public void Seed()
+        public async Task SeedAsync()
         {
             _context.Database.EnsureCreated();
 
+            // Seed roles
+            await SeedRolesAsync();
+
+            // Seed user accounts
+            await SeedUserAccountsAsync();
+
+            // Seed business data
+            SeedBusinessData();
+        }
+
+        private async Task SeedRolesAsync()
+        {
+            // Create roles if they don't exist
+            string[] roleNames = { "Admin", "Manager", "Provider", "Guest" };
+            foreach (var roleName in roleNames)
+            {
+                var roleExist = await _roleManager.RoleExistsAsync(roleName);
+                if (!roleExist)
+                {
+                    await _roleManager.CreateAsync(new IdentityRole(roleName));
+                }
+            }
+        }
+
+        private async Task SeedUserAccountsAsync()
+        {
+            // Create admin user if it doesn't exist
+            var adminUser = await _userManager.FindByEmailAsync("admin@example.com");
+            if (adminUser == null)
+            {
+                ApplicationUser user = new ApplicationUser
+                {
+                    UserName = "admin@example.com",
+                    Email = "admin@example.com",
+                    FirstName = "System",
+                    LastName = "Admin",
+                    EmailConfirmed = true,
+                    SecurityStamp = Guid.NewGuid().ToString()
+                };
+
+                var result = await _userManager.CreateAsync(user, "Admin123!");
+                if (result.Succeeded)
+                {
+                    await _userManager.AddToRoleAsync(user, "Admin");
+                }
+            }
+
+            // Create test users for each role
+            var testUsers = new List<(string email, string firstName, string lastName, string password, string role)>
+            {
+                ("manager@example.com", "Test", "Manager", "Manager123!", "Manager"),
+                ("provider@example.com", "Test", "Provider", "Provider123!", "Provider"),
+                ("guest@example.com", "Test", "Guest", "Guest123!", "Guest")
+            };
+
+            foreach (var (email, firstName, lastName, password, role) in testUsers)
+            {
+                var userExists = await _userManager.FindByEmailAsync(email);
+                if (userExists == null)
+                {
+                    ApplicationUser user = new ApplicationUser
+                    {
+                        UserName = email,
+                        Email = email,
+                        FirstName = firstName,
+                        LastName = lastName,
+                        EmailConfirmed = true,
+                        SecurityStamp = Guid.NewGuid().ToString()
+                    };
+
+                    var result = await _userManager.CreateAsync(user, password);
+                    if (result.Succeeded)
+                    {
+                        await _userManager.AddToRoleAsync(user, role);
+                        
+                        // Reload the user to get the correct ID
+                        user = await _userManager.FindByEmailAsync(email);
+
+                        // Create corresponding entry in Provider or Guest table based on role
+                        if (role == "Provider")
+                        {
+                            var provider = new Provider
+                            {
+                                ApplicationUserId = user.Id,
+                                Name = $"{user.FirstName} {user.LastName}",
+                                Number = "123456789",
+                                Address = "Test Address",
+                                TouristicOperatorPermit = "Test-123456"
+                            };
+                            _context.Providers.Add(provider);
+                            await _context.SaveChangesAsync();
+                        }
+                        else if (role == "Guest")
+                        {
+                            var guest = new Guest
+                            {
+                                ApplicationUserId = user.Id,
+                                Name = $"{user.FirstName} {user.LastName}",
+                                Number = "123456789",
+                                Age = 30
+                            };
+                            _context.Guests.Add(guest);
+                            await _context.SaveChangesAsync();
+                        }
+                    }
+                }
+            }
+        }
+
+        private void SeedBusinessData()
+        {
             if (!_context.Providers.Any())
             {
                 var providers = new List<Provider>
@@ -135,8 +259,6 @@ namespace ExperienceService.Data
                 _context.SaveChanges();
             }
 
-            
-
             if (!_context.Discounts.Any())
             {
                 var discounts = new List<Discount>
@@ -214,6 +336,12 @@ namespace ExperienceService.Data
                 _context.Billings.AddRange(billings);
                 _context.SaveChanges();
             }
+        }
+
+        // Original synchronous method for backward compatibility
+        public void Seed()
+        {
+            SeedAsync().Wait();
         }
     }
 }

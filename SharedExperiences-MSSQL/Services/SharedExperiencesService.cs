@@ -1,6 +1,7 @@
 using ExperienceService.Data;
 using ExperienceService.Models;
 using Microsoft.EntityFrameworkCore;
+using SharedExperiences.DTO;
 
 namespace ExperienceService.Services;
 public class SharedExperiencesService
@@ -57,7 +58,143 @@ public class SharedExperiencesService
         return true;
     }
 
-    
+    public async Task<IEnumerable<SharedExperience>> GetAllSharedExperiencesAsync()
+    {
+        return await _context.SharedExperiences
+            .Include(se => se.Services)
+            .Include(se => se.Guests)
+            .ToListAsync();
+    }
+
+    public async Task<SharedExperience> GetSharedExperienceByIdAsync(int id)
+    {
+        return await _context.SharedExperiences
+            .Include(se => se.Services)
+            .Include(se => se.Guests)
+            .FirstOrDefaultAsync(se => se.SharedExperienceId == id);
+    }
+
+    public async Task<SharedExperience> CreateSharedExperienceAsync(SharedExperienceDateDto dateDto)
+    {
+        // Get service and guest to add to the shared experience
+        var service = await _context.Services.FindAsync(dateDto.ServiceId);
+        if (service == null)
+        {
+            throw new ArgumentException($"Service with ID {dateDto.ServiceId} not found");
+        }
+
+        var guest = await _context.Guests.FindAsync(dateDto.GuestId);
+        if (guest == null)
+        {
+            throw new ArgumentException($"Guest with ID {dateDto.GuestId} not found");
+        }
+
+        var provider = await _context.Providers.FindAsync(dateDto.ProviderId);
+        if (provider == null)
+        {
+            throw new ArgumentException($"Provider with ID {dateDto.ProviderId} not found");
+        }
+
+        // Check if the shared experience exists
+        var sharedExperience = await _context.SharedExperiences
+            .Include(se => se.Services)
+            .Include(se => se.Guests)
+            .FirstOrDefaultAsync(se => se.SharedExperienceId == dateDto.SharedExperienceId);
+
+        if (sharedExperience == null)
+        {
+            // Create a new shared experience
+            sharedExperience = new SharedExperience
+            {
+                Date = dateDto.Date,
+                Name = $"Shared Experience on {dateDto.Date.ToShortDateString()}",
+                Description = $"Shared Experience for service {service.Name}",
+                Services = new List<Service> { service },
+                Guests = new List<Guest> { guest }
+            };
+
+            _context.SharedExperiences.Add(sharedExperience);
+        }
+        else
+        {
+            // Add service and guest to existing shared experience if not already there
+            if (!sharedExperience.Services.Any(s => s.ServiceId == service.ServiceId))
+            {
+                sharedExperience.Services.Add(service);
+            }
+
+            if (!sharedExperience.Guests.Any(g => g.GuestId == guest.GuestId))
+            {
+                sharedExperience.Guests.Add(guest);
+            }
+        }
+
+        await _context.SaveChangesAsync();
+        return sharedExperience;
+    }
+
+    public async Task<SharedExperience> UpdateSharedExperienceAsync(int id, SharedExperienceDateDto dateDto)
+    {
+        var sharedExperience = await _context.SharedExperiences
+            .Include(se => se.Services)
+            .Include(se => se.Guests)
+            .FirstOrDefaultAsync(se => se.SharedExperienceId == id);
+
+        if (sharedExperience == null)
+        {
+            return null;
+        }
+
+        // Update date
+        sharedExperience.Date = dateDto.Date;
+
+        // Update service if specified
+        if (dateDto.ServiceId > 0)
+        {
+            var service = await _context.Services.FindAsync(dateDto.ServiceId);
+            if (service == null)
+            {
+                throw new ArgumentException($"Service with ID {dateDto.ServiceId} not found");
+            }
+
+            if (!sharedExperience.Services.Any(s => s.ServiceId == service.ServiceId))
+            {
+                sharedExperience.Services.Add(service);
+            }
+        }
+
+        // Update guest if specified
+        if (dateDto.GuestId > 0)
+        {
+            var guest = await _context.Guests.FindAsync(dateDto.GuestId);
+            if (guest == null)
+            {
+                throw new ArgumentException($"Guest with ID {dateDto.GuestId} not found");
+            }
+
+            if (!sharedExperience.Guests.Any(g => g.GuestId == guest.GuestId))
+            {
+                sharedExperience.Guests.Add(guest);
+            }
+        }
+
+        await _context.SaveChangesAsync();
+        return sharedExperience;
+    }
+
+    public async Task<bool> DeleteSharedExperienceAsync(int id)
+    {
+        var sharedExperience = await _context.SharedExperiences.FindAsync(id);
+        if (sharedExperience == null)
+        {
+            return false;
+        }
+
+        _context.SharedExperiences.Remove(sharedExperience);
+        await _context.SaveChangesAsync();
+        return true;
+    }
+
     // Table 1 - Get the data collected for each experience provider.
     public async Task<IEnumerable<object>> Table1()
     {
