@@ -23,8 +23,15 @@ var builder = WebApplication.CreateBuilder(args);
 // Configure Kestrel to listen on all interfaces when in Docker
 builder.WebHost.ConfigureKestrel(serverOptions =>
 {
-    serverOptions.ListenAnyIP(80);
-    serverOptions.ListenAnyIP(443);
+    if (builder.Environment.IsDevelopment())
+    {
+        serverOptions.ListenAnyIP(5195); // Development port
+    }
+    else
+    {
+        serverOptions.ListenAnyIP(80);
+        serverOptions.ListenAnyIP(443);
+    }
 });
 
 try
@@ -82,7 +89,14 @@ try
         // Set the comments path for the Swagger JSON and UI
         var xmlFile = $"{Assembly.GetExecutingAssembly().GetName().Name}.xml";
         var xmlPath = Path.Combine(AppContext.BaseDirectory, xmlFile);
-        c.IncludeXmlComments(xmlPath);
+        if (File.Exists(xmlPath))
+        {
+            c.IncludeXmlComments(xmlPath);
+        }
+        else
+        {
+            Console.WriteLine($"Warning: XML documentation file not found at {xmlPath}");
+        }
     });
     builder.Services.AddTransient<IConfigureOptions<SwaggerGenOptions>, ConfigureSwaggerOptions>();
 
