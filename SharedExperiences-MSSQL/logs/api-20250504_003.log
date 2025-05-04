@@ -839,3 +839,4 @@ Error Number:2714,State:6,Class:16
 2025-05-04 17:23:09.980 +02:00 [WRN] Overriding address(es) 'http://localhost:5195'. Binding to endpoints defined via IConfiguration and/or UseKestrel() instead. [User:{Properties.UserId}] [Role:{Properties.UserRole}]
 2025-05-04 17:27:50.143 +02:00 [WRN] Overriding address(es) 'http://localhost:5195'. Binding to endpoints defined via IConfiguration and/or UseKestrel() instead. [User:{Properties.UserId}] [Role:{Properties.UserRole}]
 2025-05-04 17:32:59.578 +02:00 [WRN] Overriding address(es) 'http://localhost:5195'. Binding to endpoints defined via IConfiguration and/or UseKestrel() instead. [User:{Properties.UserId}] [Role:{Properties.UserRole}]
+2025-05-04 17:54:03.149 +02:00 [WRN] Overriding address(es) 'http://localhost:5195'. Binding to endpoints defined via IConfiguration and/or UseKestrel() instead. [User:{Properties.UserId}] [Role:{Properties.UserRole}]
