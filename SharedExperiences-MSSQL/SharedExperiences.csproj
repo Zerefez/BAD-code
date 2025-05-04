@@ -28,6 +28,8 @@
     <PackageReference Include="Serilog.Settings.Configuration" Version="8.0.0" />
     <PackageReference Include="Serilog.Sinks.File" Version="5.0.0" />
     <PackageReference Include="MongoDB.Driver" Version="2.21.0" />
+    <PackageReference Include="AspNetCore.HealthChecks.SqlServer" Version="7.0.0" />
+    <PackageReference Include="AspNetCore.HealthChecks.MongoDb" Version="7.0.0" />
   </ItemGroup>
 
 </Project>

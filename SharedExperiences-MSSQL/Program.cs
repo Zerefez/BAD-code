@@ -17,6 +17,7 @@ using SharedExperiences.Middleware;
 using MongoDB.Driver;
 using SharedExperiences.Services;
 using System.Collections.Generic;
+using Microsoft.Extensions.Diagnostics.HealthChecks;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -81,6 +82,17 @@ try
                 .AllowAnyMethod()
                 .AllowAnyHeader());
     });
+
+    // Add Health Checks
+    builder.Services.AddHealthChecks()
+        .AddSqlServer(
+            connectionString: builder.Configuration.GetConnectionString("DefaultConnection"),
+            name: "sqlserver",
+            tags: new[] { "db", "sql", "sqlserver" })
+        .AddMongoDb(
+            mongodbConnectionString: builder.Configuration.GetConnectionString("MongoDB"),
+            name: "mongodb",
+            tags: new[] { "db", "nosql", "mongodb" });
 
     // Configure Swagger/OpenAPI
     builder.Services.AddEndpointsApiExplorer();
@@ -176,14 +188,50 @@ try
     using (var scope = app.Services.CreateScope())
     {
         var services = scope.ServiceProvider;
-        var context = services.GetRequiredService<SharedExperiencesDbContext>();
+        var maxRetries = 3;
+        var retryDelay = TimeSpan.FromSeconds(10);
         
-        // Apply pending migrations
-        context.Database.Migrate();
-        
-        // Seed the database with roles, users, and business data
-        var seeder = services.GetRequiredService<DbSeeder>();
-        await seeder.SeedAsync();
+        for (int retryCount = 0; retryCount < maxRetries; retryCount++)
+        {
+            try
+            {
+                var context = services.GetRequiredService<SharedExperiencesDbContext>();
+                
+                // Apply pending migrations
+                context.Database.Migrate();
+                Log.Information("Database migrations applied successfully");
+                
+                // Seed the database with roles, users, and business data
+                var seeder = services.GetRequiredService<DbSeeder>();
+                await seeder.SeedAsync();
+                Log.Information("Database seeded successfully");
+                
+                // If we get here, the seeding was successful, so break out of the retry loop
+                break;
+            }
+            catch (Exception ex)
+            {
+                Log.Error(ex, "An error occurred while migrating or seeding the database (attempt {RetryCount} of {MaxRetries})", 
+                    retryCount + 1, maxRetries);
+                
+                if (retryCount < maxRetries - 1)
+                {
+                    Log.Information("Waiting {RetryDelay} seconds before retrying...", retryDelay.TotalSeconds);
+                    await Task.Delay(retryDelay);
+                }
+                else
+                {
+                    // This was the last retry attempt
+                    Log.Error("Failed to seed the database after {MaxRetries} attempts", maxRetries);
+                    if (!builder.Environment.IsDevelopment())
+                    {
+                        // In production, we want to fail fast
+                        throw;
+                    }
+                    // In development, we'll continue despite the seeding failure
+                }
+            }
+        }
     }
 
     // Enable CORS
@@ -199,6 +247,9 @@ try
     app.UseAuthorization();
 
     app.MapControllers();
+    
+    // Map health check endpoint
+    app.MapHealthChecks("/health");
 
     // Clean up Serilog on application shutdown
     app.Lifetime.ApplicationStopped.Register(Log.CloseAndFlush);

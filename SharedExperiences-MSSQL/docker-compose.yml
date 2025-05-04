@@ -23,7 +23,7 @@ services:
       - shared-experiences-network
     volumes:
       - ./logs:/app/logs
-      
+    
   sqlserver:
     image: mcr.microsoft.com/mssql/server:2022-latest
     container_name: shared-experiences-sqlserver
@@ -37,6 +37,12 @@ services:
       - sqlserver-data:/var/opt/mssql
     networks:
       - shared-experiences-network
+    healthcheck:
+      test: ["CMD", "/opt/mssql-tools18/bin/sqlcmd", "-S", "localhost", "-U", "sa", "-P", "Zerefez7253!", "-Q", "SELECT 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 60s
     
   mongodb:
     image: mongo:latest
@@ -47,6 +53,12 @@ services:
       - mongodb-data:/data/db
     networks:
       - shared-experiences-network
+    healthcheck:
+      test: echo 'db.runCommand("ping").ok' | mongosh --quiet
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
 
 networks:
   shared-experiences-network:
