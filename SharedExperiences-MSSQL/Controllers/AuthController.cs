@@ -28,7 +28,7 @@ namespace ExperienceService.Controllers
         /// </remarks>
         /// <param name="model">Registration details</param>
         /// <returns>Result of registration attempt</returns>
-        [HttpPost("register")]
+        [HttpPost("register/guest")]
         [AllowAnonymous]
         public async Task<IActionResult> Register([FromBody] RegisterDTO model)
         {
@@ -38,6 +38,78 @@ namespace ExperienceService.Controllers
             }
 
             var result = await _authService.RegisterAsync(model);
+            if (!result.Success)
+                return BadRequest(result);
+
+            return Ok(result);
+        }
+
+        /// <summary>
+        /// Register a new admin user
+        /// </summary>
+        /// <remarks>
+        /// Registers a new user with Admin role.
+        /// </remarks>
+        /// <param name="model">Registration details</param>
+        /// <returns>Result of registration attempt</returns>
+        [HttpPost("register/admin")]
+        [Authorize(Roles = "Admin")] // Only existing admins can create new admins
+        public async Task<IActionResult> RegisterAdmin([FromBody] RegisterDTO model)
+        {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+
+            var result = await _authService.RegisterAsync(model, "Admin");
+            if (!result.Success)
+                return BadRequest(result);
+
+            return Ok(result);
+        }
+
+        /// <summary>
+        /// Register a new manager user
+        /// </summary>
+        /// <remarks>
+        /// Registers a new user with Manager role.
+        /// </remarks>
+        /// <param name="model">Registration details</param>
+        /// <returns>Result of registration attempt</returns>
+        [HttpPost("register/manager")]
+        [Authorize(Roles = "Admin")] // Only admins can create managers
+        public async Task<IActionResult> RegisterManager([FromBody] RegisterDTO model)
+        {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+
+            var result = await _authService.RegisterAsync(model, "Manager");
+            if (!result.Success)
+                return BadRequest(result);
+
+            return Ok(result);
+        }
+
+        /// <summary>
+        /// Register a new provider user
+        /// </summary>
+        /// <remarks>
+        /// Registers a new user with Provider role.
+        /// </remarks>
+        /// <param name="model">Registration details</param>
+        /// <returns>Result of registration attempt</returns>
+        [HttpPost("register/provider")]
+        [Authorize(Roles = "Admin,Manager")] // Only admins and managers can create providers
+        public async Task<IActionResult> RegisterProvider([FromBody] RegisterDTO model)
+        {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+
+            var result = await _authService.RegisterAsync(model, "Provider");
             if (!result.Success)
                 return BadRequest(result);
 

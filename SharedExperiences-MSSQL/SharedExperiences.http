@@ -1,7 +1,7 @@
 @SharedExperiences_HostAddress = http://localhost:5195
 
 ### Register a new user (Guest role)
-POST {{SharedExperiences_HostAddress}}/api/Auth/register
+POST {{SharedExperiences_HostAddress}}/api/Auth/register/guest
 Content-Type: application/json
 
 {
@@ -10,6 +10,48 @@ Content-Type: application/json
   "confirmPassword": "Password123!",
   "firstName": "John",
   "lastName": "Doe",
+  "phoneNumber": "1234567890"
+}
+
+### Register a new admin user (requires Admin role)
+POST {{SharedExperiences_HostAddress}}/api/Auth/register/admin
+Content-Type: application/json
+Authorization: Bearer YOUR_ADMIN_TOKEN_HERE
+
+{
+  "email": "newadmin@example.com",
+  "password": "Password123!",
+  "confirmPassword": "Password123!",
+  "firstName": "Admin",
+  "lastName": "User",
+  "phoneNumber": "1234567890"
+}
+
+### Register a new manager user (requires Admin role)
+POST {{SharedExperiences_HostAddress}}/api/Auth/register/manager
+Content-Type: application/json
+Authorization: Bearer YOUR_ADMIN_TOKEN_HERE
+
+{
+  "email": "newmanager@example.com",
+  "password": "Password123!",
+  "confirmPassword": "Password123!",
+  "firstName": "Manager",
+  "lastName": "User",
+  "phoneNumber": "1234567890"
+}
+
+### Register a new provider user (requires Admin or Manager role)
+POST {{SharedExperiences_HostAddress}}/api/Auth/register/provider
+Content-Type: application/json
+Authorization: Bearer YOUR_ADMIN_OR_MANAGER_TOKEN_HERE
+
+{
+  "email": "newprovider@example.com",
+  "password": "Password123!",
+  "confirmPassword": "Password123!",
+  "firstName": "Provider",
+  "lastName": "User",
   "phoneNumber": "1234567890"
 }
 

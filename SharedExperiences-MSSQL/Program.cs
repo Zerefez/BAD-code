@@ -172,21 +172,18 @@ try
         c.DisplayRequestDuration(); // Show request duration
     });
 
-    if (app.Environment.IsDevelopment())
+    // Apply migrations and seed the database
+    using (var scope = app.Services.CreateScope())
     {
-        // Apply migrations and seed the database
-        using (var scope = app.Services.CreateScope())
-        {
-            var services = scope.ServiceProvider;
-            var context = services.GetRequiredService<SharedExperiencesDbContext>();
-            
-            // Apply pending migrations
-            context.Database.Migrate();
-            
-            // Seed the database with roles, users, and business data
-            var seeder = services.GetRequiredService<DbSeeder>();
-            await seeder.SeedAsync();
-        }
+        var services = scope.ServiceProvider;
+        var context = services.GetRequiredService<SharedExperiencesDbContext>();
+        
+        // Apply pending migrations
+        context.Database.Migrate();
+        
+        // Seed the database with roles, users, and business data
+        var seeder = services.GetRequiredService<DbSeeder>();
+        await seeder.SeedAsync();
     }
 
     // Enable CORS
